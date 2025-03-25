@@ -1,17 +1,45 @@
-image: maven:3-eclipse-temurin-21-alpine
+image: node:18-alpine
+
+stages:
+  - deploy
 
 variables:
-  TP_DIR: "temp"
+  API_DEPLOY_PATH: '/var/www/api'
+  FRONTEND_DEPLOY_PATH: '/var/www/frontend'
+  DEPLOY_USER: 'gitlabci'
+  API_HOST: '192.168.75.18'
+  FRONT_HOST: '192.168.75.18'
 
-deploy:
+before_script:
+  - mkdir -p ~/.ssh
+  - echo "$CI_SSH_KEY" > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - ssh-keyscan -H $API_HOST >> ~/.ssh/known_hosts
+  - ssh-keyscan -H $FRONT_HOST >> ~/.ssh/known_hosts
+
+deploy_and_run_api:
+  stage: deploy
   only:
     - main
-  before_script:
-    - chmod +x ci/setup-mvn-proxy.sh
-    - ./ci/setup-mvn-proxy.sh
-    - chmod 400 $CI_SSH_KEY
-    - apk add openssh-client
   script:
-    - cd $TP_DIR
-    - mvn clean package
-    - scp -i $CI_SSH_KEY -o StrictHostKeyChecking=no target/*.war gitlabci@192.168.75.18:/opt/tomcat/webapps/c02_tracker.war
+    - scp -r ./api/* $DEPLOY_USER@$API_HOST:$API_DEPLOY_PATH
+    - ssh $DEPLOY_USER@$API_HOST "
+      cd $API_DEPLOY_PATH &&
+      npm install &&
+      pm2 delete api || true &&
+      pm2 start server.js --name api
+      "
+
+deploy_vue_app:
+  stage: deploy
+  only:
+    - main
+  script:
+    - scp -r ./frontend/* $DEPLOY_USER@$FRONT_HOST:$FRONTEND_DEPLOY_PATH
+    - ssh $DEPLOY_USER@$FRONT_HOST "
+      cd $FRONTEND_DEPLOY_PATH &&
+      npm install &&
+      npm run build &&
+      pm2 delete frontend || true &&
+      pm2 serve dist 3000 --name frontend
+      "

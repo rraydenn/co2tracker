@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+
+:root {
+  --adonis-primary: #2d3748;
+  --adonis-secondary: #4a5568;
+  --adonis-accent: #ed64a6;
+  --adonis-bg: #f7fafc;
+  --adonis-text: #2d3748;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background-color: var(--adonis-bg);
+  color: var(--adonis-text);
+  font-family: var(--font-family);
+}
