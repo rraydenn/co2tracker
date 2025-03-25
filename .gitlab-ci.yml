@@ -11,7 +11,6 @@ variables:
   FRONT_HOST: '192.168.75.18'
 
 before_script:
-  script:
   - chmod 400 $CI_SSH_KEY
 
 deploy_and_run_api:
@@ -27,7 +26,6 @@ deploy_and_run_api:
         pm2 delete api || true &&
         pm2 start server.js --name api"
 
-# Déploiement du frontend (Vue, React, etc.)
 deploy_vue_app:
   stage: deploy
   only:
