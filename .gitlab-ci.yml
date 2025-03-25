@@ -15,5 +15,3 @@ deploy:
     - cd $TP_DIR
     - mvn clean package
     - scp -i $CI_SSH_KEY -o StrictHostKeyChecking=no target/*.war gitlabci@192.168.75.18:/opt/tomcat/webapps/c02_tracker.war
-  after_script:
-    - rm gitlabci_key.pem
