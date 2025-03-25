@@ -10,6 +10,10 @@ variables:
   API_HOST: '192.168.75.18'
   FRONT_HOST: '192.168.75.18'
 
+before_script:
+  script:
+  - chmod 400 $CI_SSH_KEY
+
 deploy_and_run_api:
   stage: deploy
   only:
