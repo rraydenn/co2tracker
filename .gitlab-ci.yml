@@ -35,11 +35,11 @@ deploy_vue_app:
   only:
     - main
   script:
-    - scp -r ./frontend/* $DEPLOY_USER@$FRONT_HOST:$FRONTEND_DEPLOY_PATH
+    - npm install --prefix ./frontend
+    - npm run build --prefix ./frontend
+    - scp -r ./frontend/dist/* $DEPLOY_USER@$FRONT_HOST:$FRONTEND_DEPLOY_PATH
     - ssh $DEPLOY_USER@$FRONT_HOST "
       cd $FRONTEND_DEPLOY_PATH &&
-      npm install &&
-      npm run build &&
       pm2 delete frontend || true &&
-      pm2 serve dist 3000 --name frontend
+      pm2 serve . 3000 --name frontend
       "
