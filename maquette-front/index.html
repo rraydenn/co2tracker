@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO2 Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+    <header>
+        <div class="site-title">
+            CO2 Tracker Title
+        </div>
+        <button id="menu-toggle" onclick="toggleMenu()">☰</button>    </header>
+    
+    <main>
+        <section id="map">
+            <div id="map"></div>
+        </section>
+
+        <aside id="menu" class="hidden">
+            <button id="close-menu" onclick="toggleMenu()" disabled>x</button>
+            <!-- Section de connexion -->
+            <div id="account-section">
+                <a href="#" id="account-link" onclick="togglePopup()">👤 Mon compte</a>
+            </div>
+
+            <!-- Formulaire de sélection du trajet -->
+            <h2>Votre futur trajet</h2>
+            <form id="travel-form">
+                <label for="departure">Départ:</label>
+                <input type="text" id="departure" name="departure" required>
+
+                <label for="arrival">Arrivée:</label>
+                <input type="text" id="arrival" name="arrival" required>
+
+                <label for="people">Nombre de personnes:</label>
+                <input type="number" id="people" name="people" required min="1">
+
+                <label for="transport">Mode de transport:</label>
+                <select id="transport" name="transport" required>
+                    <option value="car">Voiture</option>
+                    <option value="bus">Bus</option>
+                    <option value="train">Train</option>
+                    <option value="plane">Avion</option>
+                </select>
+
+                <button type="submit" id="calculateCO2">Calculer CO2</button>
+            </form>
+        </aside>
+
+        <!-- Popup pour connexion/inscription -->
+        <div id="account-popup" class="hidden">
+            <div class="popup-content" style="background: #dde2e8;">
+                <!-- Bouton pour fermer la popup -->
+                <button id="close-popup" onclick="togglePopup()">×</button>
+                <h2>Connexion</h2>
+                <form id="login-form">
+                    <input type="text" id="login-name" name="name" placeholder="Entrez votre nom" required>
+                    
+                    <input type="password" id="login-password" name="password" placeholder="Entrez votre mot de passe" required>
+                    
+                    <button type="submit">Se connecter</button>
+                </form>
+        
+                <h2>Créer un compte</h2>
+                <form id="register-form">
+                    <input type="text" id="register-name" name="name" placeholder="Entrez votre nom" required>
+                    
+                    <input type="password" id="register-password" name="password" placeholder="Créez un mot de passe" required>
+                    
+                    <button type="submit">Créer un compte</button>
+                </form>
+            </div>
+        </div>
+        
+        <section id="results">
+            <!-- Version sans voyage confirmé -->
+            <div id="no-trip" class="trip-status">
+                <h2>Pas de voyage confirmé</h2>
+            </div>
+        
+            <!-- Version avec voyage calculé -->
+            <div id="trip-calculated" class="trip-status">
+                <h2>Résultats du voyage</h2>
+                <div class="summary">
+                    <h3>Résumé de votre voyage</h3>
+                    <p><strong>Départ :</strong> <span id="calc-departure">Paris</span></p>
+                    <p><strong>Arrivée :</strong> <span id="calc-arrival">Londres</span></p>
+                    <p><strong>Mode de transport :</strong> <span id="calc-transport">Avion</span></p>
+                    <p><strong>Nombre de personnes :</strong> <span id="calc-num-people">2</span></p>
+                    <p><strong>Distance totale WIP :</strong> <span id="calc-distance">344 km</span></p>
+                </div>
+        
+                <!-- Consommation de CO2 -->
+                <div class="co2-consumption">
+                    <h3>Consommation de CO2 WIP</h3>
+                    <p><strong>CO2 émis : </strong><span id="calc-co2">100000000000000000 kg CO2</span></p>
+                    <div class="co2-bar">
+                        <div class="filled-bar" style="width: 50%"></div>
+                    </div>
+                </div>
+        
+                <!-- Comparaison amusante -->
+                <div class="fun-comparisons">
+                    <h3>Statistiques comparatives amusantes WIP</h3>
+                    <ul>
+                        <li>Équivalent à un voyage Terre-Lune de <strong>10%</strong></li>
+                        <li>CO2 de votre voyage est égal à <strong>200 bananes</strong> !</li>
+                        <li>En termes de carburant, cela représente <strong>10 pleins de voiture</strong>.</li>
+                    </ul>
+                </div>
+        
+                <!-- Classement des utilisateurs -->
+                <div class="user-ranking">
+                    <h3>Classement parmi les utilisateurs WIP</h3>
+                    <p><strong>Votre rang :</strong> <span id="user-rank">5ème sur 200</span></p>
+                    <div class="ranking-bar">
+                        <div class="user-bar" style="width: 25%"></div>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+    </main>
+    
+    <script src="script.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Plugin de géocodage pour rechercher des adresses -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <script>
+        // Initialisation de la carte
+        var map = L.map('map').setView([48.8566, 2.3522], 7); // Centré sur Paris
+    
+        // Ajout d'un fond de carte OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+    
+    
+        // Gestion des marqueurs de départ et d'arrivée
+        var startMarker, endMarker, routeLayer;
+    
+        function addMarker(latlng, type) {
+            if (type === "start") {
+                if (startMarker) map.removeLayer(startMarker);
+                startMarker = L.marker(latlng, { draggable: true }).addTo(map).bindPopup("Départ");
+            } else {
+                if (endMarker) map.removeLayer(endMarker);
+                endMarker = L.marker(latlng, { draggable: true }).addTo(map).bindPopup("Arrivée");
+            }
+        }
+    
+        map.on('click', function(e) {
+            if (!startMarker) {
+                addMarker(e.latlng, "start");
+            } else if (!endMarker) {
+                addMarker(e.latlng, "end");
+                calculateRoute(); // Calculer l'itinéraire après avoir placé l'arrivée
+            }
+        });
+    
+        function calculateRoute() {
+            if (!startMarker || !endMarker) return;
+    
+            var startLatLng = startMarker.getLatLng();
+            var endLatLng = endMarker.getLatLng();
+    
+            var url = `https://router.project-osrm.org/route/v1/driving/${startLatLng.lng},${startLatLng.lat};${endLatLng.lng},${endLatLng.lat}?overview=full&geometries=geojson`;
+    
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (routeLayer) map.removeLayer(routeLayer);
+                    
+                    var route = L.geoJSON(data.routes[0].geometry, {
+                        color: 'blue',
+                        weight: 5,
+                        opacity: 0.7
+                    }).addTo(map);
+    
+                    routeLayer = route;
+                })
+                .catch(error => console.error("Erreur lors du calcul de l'itinéraire :", error));
+        }
+    </script>
+
+</body>
+
+<footer>   
+    <div class="footer">
+        <p>CO2 Tracker - 2025 - PierreManoel - Ugo - XXXXXXX</p>
+        <a href="info.html">Informations du site</a>
+    </div>
+</footer>
+</html>
