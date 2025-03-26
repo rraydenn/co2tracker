@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Compte</title>
+    <link rel="stylesheet" href="styles_moncompte.css">
+</head>
+<body>
+    <div id="account-container">
+        <h1>Bonjour, <span id="user-login">Utilisateur</span></h1>
+        
+        <button id="logout-button">Se déconnecter</button>
+        <button id="admin-button">Accéder à l'administration</button>
+        
+        <section id="historique">
+            <h2>Historique des voyages WIP</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Départ</th>
+                        <th>Arrivée</th>
+                        <th>Mode de transport</th>
+                        <th>CO2 émis</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5">Aucun voyage enregistré.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        
+        <section id="modifier-compte">
+            <h2>Modifier vos informations WIP</h2>
+            <form>
+                <label for="new-login">Nouveau login :</label>
+                <input type="text" id="new-login" placeholder="Entrez votre nouveau login">
+                
+                <label for="new-password">Nouveau mot de passe :</label>
+                <input type="password" id="new-password" placeholder="Entrez un nouveau mot de passe">
+                
+                <button type="submit">Enregistrer</button>
+            </form>
+        </section>
+        
+        <section id="stats-comparatives">
+            <h2>Comparaison avec les autres utilisateurs WIP</h2>
+            <p>Votre empreinte carbone est dans le <strong>top 30%</strong> des utilisateurs les plus écologiques.</p>
+            <p>Équivalent en bananes expédiées : <strong>1500 kg</strong></p>
+        </section>
+    </div>
+</body>
+</html>

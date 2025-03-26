@@ -11,35 +11,31 @@ variables:
   FRONT_HOST: '192.168.75.18'
 
 before_script:
-  - mkdir -p ~/.ssh
-  - echo "$CI_SSH_KEY" > ~/.ssh/id_rsa
-  - chmod 600 ~/.ssh/id_rsa
-  - ssh-keyscan -H $API_HOST >> ~/.ssh/known_hosts
-  - ssh-keyscan -H $FRONT_HOST >> ~/.ssh/known_hosts
+  - chmod 400 $CI_SSH_KEY
 
 deploy_and_run_api:
   stage: deploy
   only:
     - main
   script:
-    - scp -r ./api/* $DEPLOY_USER@$API_HOST:$API_DEPLOY_PATH
-    - ssh $DEPLOY_USER@$API_HOST "
-      cd $API_DEPLOY_PATH &&
-      npm install &&
-      pm2 delete api || true &&
-      pm2 start server.js --name api
-      "
+    - apk add --no-cache openssh npm
+    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/* $DEPLOY_USER@$API_HOST:$API_DEPLOY_PATH
+    - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$API_HOST "
+        cd $API_DEPLOY_PATH &&
+        npm install &&
+        pm2 delete api || true &&
+        pm2 start server.js --name api"
 
 deploy_vue_app:
   stage: deploy
   only:
     - main
   script:
-    - npm install --prefix ./frontend
-    - npm run build --prefix ./frontend
-    - scp -r ./frontend/dist/* $DEPLOY_USER@$FRONT_HOST:$FRONTEND_DEPLOY_PATH
-    - ssh $DEPLOY_USER@$FRONT_HOST "
-      cd $FRONTEND_DEPLOY_PATH &&
-      pm2 delete frontend || true &&
-      pm2 serve . 3000 --name frontend
-      "
+    - apk add --no-cache openssh npm
+    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/* $DEPLOY_USER@$FRONT_HOST:$FRONTEND_DEPLOY_PATH
+    - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$FRONT_HOST "
+        cd $FRONTEND_DEPLOY_PATH &&
+        npm install &&
+        npm run build &&
+        pm2 delete frontend || true &&
+        pm2 serve dist 3000 --name frontend"
