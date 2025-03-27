@@ -21,9 +21,11 @@ deploy_and_run_api:
     - cd ./api
     - npm install
     - node ace build
+    - cd build
+    - npm ci --omit="dev"
+    - cd ..
     - mv build api-app
     - ls api-app
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api-app $DEPLOY_USER@$HOST:$DEPLOY_PATH
-    - scp -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/.env.production $DEPLOY_USER@$HOST:$DEPLOY_PATH/api-app/.env
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
       cd $DEPLOY_PATH && pm2 start ecosystem.config.js"
