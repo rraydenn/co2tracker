@@ -20,5 +20,5 @@ router.post('/login', [UsersController, 'login'])
 router.post('/logout', [UsersController, 'logout'])
 
 router.get('/api', async () => {
-  return { message: 'Welcome to my API' }
+  return { message: 'Welcome to my adonis api' }
 })
