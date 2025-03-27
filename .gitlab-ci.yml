@@ -12,16 +12,12 @@ variables:
 before_script:
   - chmod 400 $CI_SSH_KEY
 
-setup_environment:
-  stage: setup
-  script:
-    - apk add --no-cache openssh
-
 deploy_and_run_api:
   stage: deploy
   only:
     - main
   script:
+    - apk add --no-cache openssh
     - cd ./api
     - npm install
     - node ace build
