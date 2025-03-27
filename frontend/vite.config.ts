@@ -1,21 +1,14 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
 	plugins: [vue()],
-	base: mode === 'production' ? '/prod/' : '/',
-	build: {
-		outDir: mode === 'production' ? 'dist' : 'dev-dist', // Répertoire de sortie pour Vite
-		emptyOutDir: true, // Nettoie le répertoire de sortie avant chaque build
-	},
+	base: '/',
+
 	server: {
+		host: 'localhost',
 		port: 3000,
+		strictPort: true,
 		open: true,
 	},
-	define: {
-		__DEV__: mode === 'development',
-	},
-	css: {
-		devSourcemap: mode === 'development',
-	},
-}));
+});
