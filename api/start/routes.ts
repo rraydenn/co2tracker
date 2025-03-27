@@ -19,6 +19,6 @@ router.post('/login', [UsersController, 'login'])
 
 router.post('/logout', [UsersController, 'logout'])
 
-router.get('/', async () => {
+router.get('/api', async () => {
   return { message: 'Welcome to my API' }
 })
