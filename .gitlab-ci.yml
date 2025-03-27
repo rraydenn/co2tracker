@@ -22,7 +22,7 @@ deploy_and_run_api:
     - npm install
     - node ace build
     - mv build api-app
-    - ls
+    - ls api-app
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api-app $DEPLOY_USER@$HOST:$DEPLOY_PATH
     - scp -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/.env.production $DEPLOY_USER@$HOST:$DEPLOY_PATH/api-app/.env
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
