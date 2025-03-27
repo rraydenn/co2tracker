@@ -11,13 +11,13 @@ import router from '@adonisjs/core/services/router'
 
 const UsersController = () => import('#controllers/users_controller')
 
-router.post('/users', [UsersController, 'create'])
+router.post('/api/users', [UsersController, 'create'])
 
-router.get('/users/me', [UsersController, 'getMyFullName'])
+router.get('/api/users/me', [UsersController, 'getMyFullName'])
 
-router.post('/login', [UsersController, 'login'])
+router.post('/api/login', [UsersController, 'login'])
 
-router.post('/logout', [UsersController, 'logout'])
+router.post('/api/logout', [UsersController, 'logout'])
 
 router.get('/api', async () => {
   return { message: 'Welcome to my adonis api' }
