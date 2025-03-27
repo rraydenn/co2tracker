@@ -23,10 +23,9 @@ deploy_and_run_api:
     - npm install
     - node ace build
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api-app $DEPLOY_USER@$HOST:$DEPLOY_PATH
-    - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST <<EOF
+    - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
       cd /var/www/api-app &&
       npm ci --omit="dev" &&
-      cp /etc/secrets/.env &&
+      cp /etc/secrets/.env . &&
       pm2 delete ecosystem.config.js || true &&
-      pm2 start ecosystem.config.js
-      EOF
+      pm2 start ecosystem.config.js"
