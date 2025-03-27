@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('auth', {
 	actions: {
 		async register(full_name: string, email: string, password: string) {
 			try {
-				await axios.post('http://localhost:3333/users', {
+				await axios.post('http://localhost:3333/api/users', {
 					full_name,
 					email,
 					password,
@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', {
 
 		async login(email: string, password: string) {
 			try {
-				const response = await axios.post('http://localhost:3333/login', {
+				const response = await axios.post('http://localhost:3333/api/login', {
 					email,
 					password,
 				});
@@ -49,7 +49,7 @@ export const useAuthStore = defineStore('auth', {
 				if (this.token) {
 					const header = { Authorization: `Bearer ${this.token}` };
 					await axios.post(
-						'http://localhost:3333/logout',
+						'http://localhost:3333/api/logout',
 						{},
 						{ headers: header }
 					);
@@ -67,9 +67,12 @@ export const useAuthStore = defineStore('auth', {
 			try {
 				if (this.token) {
 					const header = { Authorization: `Bearer ${this.token}` };
-					const response = await axios.get('http://localhost:3333/users/me', {
-						headers: header,
-					});
+					const response = await axios.get(
+						'http://localhost:3333/api/users/me',
+						{
+							headers: header,
+						}
+					);
 
 					console.log(response.data);
 					return response.data;
@@ -78,7 +81,7 @@ export const useAuthStore = defineStore('auth', {
 				}
 			} catch (error) {
 				console.error('Show user failed', error);
-				return null; // Ensure a consistent return type
+				return null;
 			}
 		},
 	},

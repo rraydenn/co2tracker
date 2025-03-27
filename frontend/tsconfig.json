@@ -11,7 +11,8 @@
 		"paths": {
 			"@/*": ["src/*"]
 		},
-		"outDir": "./dist-ts",
+		"outDir": "./frontend-app",
+		"rootDir": "./",
 		"noEmit": false
 	},
 	"files": [],
