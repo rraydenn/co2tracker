@@ -26,4 +26,4 @@ deploy_and_run_api:
     - cd ..
     - mv build api-app
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api-app $DEPLOY_USER@$HOST:$DEPLOY_PATH
-    - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "cp /etc/secrets/.env /var/www/api-app/.env && cd $DEPLOY_PATH && pm2 del api &&pm2 start ecosystem.config.js"
+    - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "cp /etc/secrets/.env /var/www/api-app/.env && cd $DEPLOY_PATH && pm2 del ecosystem.config.js && pm2 start ecosystem.config.js"
