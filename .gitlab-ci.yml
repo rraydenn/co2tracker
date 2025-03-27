@@ -28,5 +28,4 @@ deploy_and_run_api:
       npm ci --omit="dev" &&
       cp /etc/secrets/.env . &&
       cd .. &&
-      pm2 delete ecosystem.config.js || true &&
-      pm2 start ecosystem.config.js"
+      pm2 restart ecosystem.config.js"
