@@ -25,7 +25,6 @@ deploy_and_run_api:
     - npm ci --omit="dev"
     - cd ..
     - mv build api-app
-    - ls api-app
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api-app $DEPLOY_USER@$HOST:$DEPLOY_PATH
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
-      cd $DEPLOY_PATH && pm2 start ecosystem.config.js"
+      cd $DEPLOY_PATH && cp /etc/secrets/.env /var/www/api-app && pm2 start ecosystem.config.js"
