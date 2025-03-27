@@ -16,7 +16,7 @@ setup_environment:
   stage: setup
   script:
     - apk add --no-cache openssh
-    - npm install
+    - scp -V
 
 deploy_and_run_api:
   stage: deploy
