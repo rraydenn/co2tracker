@@ -40,14 +40,13 @@
 
                 <label for="transport">Mode de transport:</label>
                 <select id="transport" name="transport" required>
-                    <option value="car">Voiture</option>
+                    <option value="voiture">Voiture</option>
                     <option value="bus">Bus</option>
                     <option value="train">Train</option>
-                    <option value="plane">Avion</option>
+                    <option value="avion">Avion</option>
                 </select>
 
-                <button type="submit" id="calculateCO2">Calculer CO2</button>
-            </form>
+                <button type="submit" id="calculateCO2" class="btn-disabled" disabled>Calculer CO₂</button>            </form>
         </aside>
 
         <!-- Popup pour connexion/inscription -->
@@ -125,68 +124,15 @@
         </section>
     </main>
     
-    <script src="script.js"></script>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <!-- Plugin de géocodage pour rechercher des adresses -->
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="script.js"></script>
+    <script src="scriptmap.js"></script>
 
-    <script>
-        // Initialisation de la carte
-        var map = L.map('map').setView([48.8566, 2.3522], 7); // Centré sur Paris
+
     
-        // Ajout d'un fond de carte OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-    
-    
-        // Gestion des marqueurs de départ et d'arrivée
-        var startMarker, endMarker, routeLayer;
-    
-        function addMarker(latlng, type) {
-            if (type === "start") {
-                if (startMarker) map.removeLayer(startMarker);
-                startMarker = L.marker(latlng, { draggable: true }).addTo(map).bindPopup("Départ");
-            } else {
-                if (endMarker) map.removeLayer(endMarker);
-                endMarker = L.marker(latlng, { draggable: true }).addTo(map).bindPopup("Arrivée");
-            }
-        }
-    
-        map.on('click', function(e) {
-            if (!startMarker) {
-                addMarker(e.latlng, "start");
-            } else if (!endMarker) {
-                addMarker(e.latlng, "end");
-                calculateRoute(); // Calculer l'itinéraire après avoir placé l'arrivée
-            }
-        });
-    
-        function calculateRoute() {
-            if (!startMarker || !endMarker) return;
-    
-            var startLatLng = startMarker.getLatLng();
-            var endLatLng = endMarker.getLatLng();
-    
-            var url = `https://router.project-osrm.org/route/v1/driving/${startLatLng.lng},${startLatLng.lat};${endLatLng.lng},${endLatLng.lat}?overview=full&geometries=geojson`;
-    
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (routeLayer) map.removeLayer(routeLayer);
-                    
-                    var route = L.geoJSON(data.routes[0].geometry, {
-                        color: 'blue',
-                        weight: 5,
-                        opacity: 0.7
-                    }).addTo(map);
-    
-                    routeLayer = route;
-                })
-                .catch(error => console.error("Erreur lors du calcul de l'itinéraire :", error));
-        }
-    </script>
 
 </body>
 
