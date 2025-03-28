@@ -16,17 +16,17 @@ before_script:
 
 sonarqube-check:
   stage: sonarqube-check
-  image: 
+  image:
     name: sonarsource/sonar-scanner-cli:5.0
-    entrypoint: [""]
+    entrypoint: ['']
   variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
-    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+    SONAR_USER_HOME: '${CI_PROJECT_DIR}/.sonar' # Defines the location of the analysis task cache
+    GIT_DEPTH: '0' # Tells git to fetch all the branches of the project, required by the analysis task
   cache:
-    key: "${CI_JOB_NAME}"
+    key: '${CI_JOB_NAME}'
     paths:
       - .sonar/cache
-  script: 
+  script:
     - sonar-scanner
   allow_failure: true
   only:
@@ -57,7 +57,6 @@ deploy_and_run_frontend:
   only:
     - main
   script:
-    - cd ./frontend
-    - npm install
-    - npm run build
+    - cd ./maquette-front
+    - mv maquette-front dist
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./dist $DEPLOY_USER@$HOST:$DEPLOY_PATH
