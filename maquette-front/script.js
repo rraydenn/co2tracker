@@ -105,6 +105,34 @@ function togglePopup(event) {
 }
 
 
+
+//Methode pour mettre en évidence le bouton calculerco2 lorsqu'il est activé
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("travel-form");
+    const calculateBtn = document.getElementById("calculateCO2");
+
+    function updateButtonState() {
+        const departure = document.getElementById("departure").value.trim();
+        const arrival = document.getElementById("arrival").value.trim();
+        const people = document.getElementById("people").value;
+        const transport = document.getElementById("transport").value;
+
+        if (departure !== "" && arrival !== "" && people > 0 && transport !== "") {
+            calculateBtn.classList.remove("btn-disabled");
+            calculateBtn.classList.add("btn-active");
+            calculateBtn.disabled = false;
+        } else {
+            calculateBtn.classList.add("btn-disabled");
+            calculateBtn.classList.remove("btn-active");
+            calculateBtn.disabled = true;
+        }
+    }
+
+    // Écouteurs sur les champs du formulaire
+    form.addEventListener("input", updateButtonState);
+});
+
+
 // Fonction pour gérer la soumission du formulaire de voyage
 document.getElementById('travel-form').addEventListener('submit', function(event) {
     event.preventDefault();
@@ -120,6 +148,10 @@ document.getElementById('travel-form').addEventListener('submit', function(event
     document.getElementById('calc-arrival').textContent = arrival;
     document.getElementById('calc-transport').textContent = transport;
     document.getElementById('calc-num-people').textContent = numPeople;
+    const distanceInKm = document.getElementById('calc-distance').textContent;
+
+    document.getElementById("calc-co2").textContent = `${distanceInKm} km * ratio CO2 de ${transport} * ${numPeople} personnes`;
+
 
     document.getElementById('no-trip').style.display = 'none';
     document.getElementById('trip-calculated').style.display = 'block';

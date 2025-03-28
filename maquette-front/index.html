@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CO2 Tracker</title>
+    <link rel="icon" href="logo3leaf.png" type="image/png">
+
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
@@ -46,14 +48,13 @@
 
                 <label for="transport">Mode de transport:</label>
                 <select id="transport" name="transport" required>
-                    <option value="car">Voiture</option>
+                    <option value="voiture">Voiture</option>
                     <option value="bus">Bus</option>
                     <option value="train">Train</option>
-                    <option value="plane">Avion</option>
+                    <option value="avion">Avion</option>
                 </select>
 
-                <button type="submit" id="calculateCO2">Calculer CO2</button>
-            </form>
+                <button type="submit" id="calculateCO2" class="btn-disabled" disabled>Calculer CO₂</button>            </form>
         </aside>
 
         <!-- Popup pour connexion/inscription -->
@@ -92,11 +93,11 @@
                 <h2>Résultats du voyage</h2>
                 <div class="summary">
                     <h3>Résumé de votre voyage</h3>
-                    <p><strong>Départ :</strong> <span id="calc-departure">Paris</span></p>
-                    <p><strong>Arrivée :</strong> <span id="calc-arrival">Londres</span></p>
-                    <p><strong>Mode de transport :</strong> <span id="calc-transport">Avion</span></p>
-                    <p><strong>Nombre de personnes :</strong> <span id="calc-num-people">2</span></p>
-                    <p><strong>Distance totale WIP :</strong> <span id="calc-distance">344 km</span></p>
+                    <p><strong>Départ :</strong> <span id="calc-departure">default</span></p>
+                    <p><strong>Arrivée :</strong> <span id="calc-arrival">default</span></p>
+                    <p><strong>Mode de transport :</strong> <span id="calc-transport">default</span></p>
+                    <p><strong>Nombre de personnes :</strong> <span id="calc-num-people">default</span></p>
+                    <p><strong>Distance totale WIP :</strong> <span id="calc-distance">default</span></p>
                 </div>
         
                 <!-- Consommation de CO2 -->

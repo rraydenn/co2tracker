@@ -3,8 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #b3aeae;
-    color: #333;
+    background-color: #e0d1d1;
     overflow-x: hidden;
 }
 
@@ -111,6 +110,7 @@ footer {
     color: #555; /* Couleur légèrement plus claire au survol */
 }
 
+
 /* Bouton pour fermer le menu */
 #close-menu {
     position: absolute;
@@ -151,6 +151,7 @@ button:disabled {
     flex-direction: column; /* Aligne les éléments verticalement */
     gap: 15px; /* Ajoute un espacement uniforme entre les éléments */
     margin-top: 20px; /* Ajoute un espace au-dessus du formulaire */
+    border: none;
 }
 
 #menu label {
@@ -160,8 +161,7 @@ button:disabled {
 }
 
 #menu input,
-#menu select,
-#menu button:not(#close-menu) {
+#menu select {
     width: auto; /* Prend toute la largeur disponible */
     padding: 10px; /* Ajoute de l'espace interne */
     border: 1px solid #ccc; /* Bordure légère */
@@ -169,18 +169,46 @@ button:disabled {
     font-size: 1em; /* Taille de police cohérente */
 }
 
-#menu button:not(#close-menu) {
-    background: #a5c8d8; /* Couleur pastel pour les boutons */
-    color: white; /* Texte blanc */
-    cursor: pointer;
-    border: none; /* Supprime les bordures supplémentaires */
-    transition: background 0.3s ease; /* Animation pour le survol */
+.suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
 }
 
-#menu button:not(#close-menu):hover {
-    background: #8bb0c1; /* Couleur légèrement plus foncée au survol */
-    transform: scale(1.01); /* Légère mise en avant au survol */
+.suggestions div {
+    padding: 8px;
+    cursor: pointer;
+}
 
+.suggestions div:hover {
+    background: #f0f0f0;
+}
+
+
+.btn-disabled {
+    background-color: gray;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.btn-active {
+    background-color: green;
+    width: auto; /* Prend toute la largeur disponible */
+    padding: 10px; /* Ajoute de l'espace interne */
+    border: 1px solid #ccc; /* Bordure légère */
+    border-radius: 5px; /* Coins arrondis */
+    font-size: 1em; /* Taille de police cohérente */
+    cursor: pointer;
+
+    transition: background-color 0.3s;
+}
+
+.btn-active:hover {
+    transform: scale(1.05); /* Légère mise en avant au survol */
 }
 
 /* Styles for address autocomplete */
