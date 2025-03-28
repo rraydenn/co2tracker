@@ -81,6 +81,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 let coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
                 routeLayer = L.polyline(coords, { color: 'blue', weight: 5 }).addTo(map);
+
+                // Extraire la distance (en mètres) et la convertir en kilomètres
+                let distanceInMeters = data.routes[0].legs[0].distance;  // distance en mètres
+                let distanceInKm = (distanceInMeters / 1000).toFixed(2);  // convertir en kilomètres
+
+                // Afficher la distance dans le span
+                document.getElementById("calc-distance").textContent = `${distanceInKm} km`;
             })
             .catch(error => console.error("Erreur lors du calcul de l'itinéraire :", error));
     }
@@ -118,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function masquersuggestion() {
+    function masquerSuggestion(e) {
         if (!departureInput.contains(e.target) && !departureSuggestions.contains(e.target)) {
             departureSuggestions.innerHTML = "";
         }
@@ -162,12 +169,12 @@ document.addEventListener("DOMContentLoaded", function () {
                             departureInput.value = place.display_name;
                             addMarker([parseFloat(place.lat), parseFloat(place.lon)], 'start');
                             departureSuggestions.innerHTML = ""; // Masquer les suggestions
-                            masquersuggestion();
+                            masquerSuggestion(e);
                         } else {
                             arrivalInput.value = place.display_name;
                             addMarker([parseFloat(place.lat), parseFloat(place.lon)], 'end');
                             arrivalSuggestions.innerHTML = ""; // Masquer les suggestions
-                            masquersuggestion();
+                            masquerSuggestion(e);
 
                         }
                     });
@@ -183,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Masquer les suggestions lorsqu'on clique en dehors
     document.addEventListener('click', (e) => {
-        masquersuggestion()
+        masquerSuggestion(e)
     });
 
 

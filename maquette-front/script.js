@@ -77,6 +77,10 @@ document.getElementById('travel-form').addEventListener('submit', function(event
     document.getElementById('calc-arrival').textContent = arrival;
     document.getElementById('calc-transport').textContent = transport;
     document.getElementById('calc-num-people').textContent = numPeople;
+    const distanceInKm = document.getElementById('calc-distance').textContent;
+
+    document.getElementById("calc-co2").textContent = `${distanceInKm} km * ratio CO2 de ${transport} * ${numPeople} personnes`;
+
 
     document.getElementById('no-trip').style.display = 'none';
     document.getElementById('trip-calculated').style.display = 'block';
