@@ -57,6 +57,5 @@ deploy_and_run_frontend:
   only:
     - main
   script:
-    - cd ./maquette-front
     - mv maquette-front dist
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./dist $DEPLOY_USER@$HOST:$DEPLOY_PATH
