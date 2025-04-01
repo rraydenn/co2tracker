@@ -46,9 +46,9 @@ GRANT ALL PRIVILEGES ON DATABASE tracker_co2 TO tracker_co2_user;
 
 ---
 
-### 5. Configuration de l'environnement backend
+### 5. Configuration de l'environnement api
 
-1. Créez un fichier `.env.development` à la racine du projet backend :
+1. Créez un fichier `.env.development` à la racine du projet api :
 
 ```bash
 touch .env.development
