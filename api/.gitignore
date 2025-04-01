@@ -32,8 +32,6 @@ coverage
 .env
 .env.development
 
-packege-lock.json
-
 api-app/
 
 build/

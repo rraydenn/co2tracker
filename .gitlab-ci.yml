@@ -35,22 +35,73 @@ sonarqube-check:
     - main
     - develop
 
-deploy_and_run_api:
-  stage: deploy
+######################
+# Build API (AdonisJS)
+######################
+build_api:
+  stage: build
   only:
     - main
   script:
-    - echo "Installing dependencies and building the API..."
+    - echo "Injecting API env config"
     - cd ./api
-    - npm install
+    - echo "$ENV_API_PROD_CONFIG" > .env.production
+    - echo "Installing API dependencies"
+    - npm ci
     - node ace build
-    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api-app $DEPLOY_USER@$HOST:$DEPLOY_PATH
+  artifacts:
+    paths:
+      - api/build/
+    expire_in: 1 hour
+
+########################
+# Build Front (Vite/Vue)
+########################
+# build_frontend:
+#   stage: build
+#   only:
+#     - main
+#   script:
+#     - echo "Injecting frontend env config"
+#     - cd ./frontend
+#     - echo "$ENV_FRONT_PROD_CONFIG" > .env.production
+#     - echo "Installing frontend dependencies"
+#     - npm ci
+#     - npm run build
+#   artifacts:
+#     paths:
+#       - frontend/dist/
+#     expire_in: 1 hour
+
+######################
+# Deploy API to server
+######################
+deploy_api:
+  stage: deploy
+  needs: [build_api]
+  only:
+    - main
+  script:
+    - echo "Deploying API to $HOST..."
+    - echo "Copying API build to $HOST..."
+    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/build $DEPLOY_USER@$HOST:$DEPLOY_PATH/api
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
-      cd /var/www/api-app &&
-      npm ci --omit="dev" &&
-      cp /etc/secrets/.env . &&
-      cd .. &&
-      pm2 restart ecosystem.config.js"
+      cd $DEPLOY_PATH/api &&
+      npm ci --omit=dev &&
+      pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js"
+
+###########################
+# Deploy Front to server
+###########################
+# deploy_frontend:
+#   stage: deploy
+#   needs: [build_frontend]
+#   only:
+#     - main
+#   script:
+#     - echo "Deploying Frontend to $HOST..."
+#     - echo "Copying Frontend build to $HOST..."
+#     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/dist $DEPLOY_USER@$HOST:$DEPLOY_PATH/frontend
 
 deploy_and_run_frontend:
   stage: deploy
