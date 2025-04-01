@@ -1,23 +1,19 @@
 {
 	"compilerOptions": {
-		"lib": ["esnext", "dom"],
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"lib": ["ESNext", "DOM"],
+		"moduleResolution": "Node",
 		"strict": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"moduleResolution": "node",
-		"baseUrl": "./",
+		"baseUrl": ".",
 		"paths": {
 			"@/*": ["src/*"]
 		},
-		"outDir": "./frontend-app",
-		"rootDir": "./",
-		"noEmit": false
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"types": ["vite/client"],
+		"outDir": "types"
 	},
-	"files": [],
-	"references": [
-		{ "path": "./tsconfig.app.json" },
-		{ "path": "./tsconfig.node.json" }
-	]
+	"include": ["src", "vite-env.d.ts"]
 }
