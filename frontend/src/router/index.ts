@@ -5,12 +5,24 @@ import AccountPage from "@/components/AccountPage.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Dashboard from "../views/Dashboard.vue";
+import { useAuthStore } from "@/stores/auth";
 
 const routes: Array<RouteRecordRaw> = [
   { path: "/", name: 'Home', component: CO2Tracker },
   { path: "/login", name: 'Login', component: Login },
   { path: "/register", name: 'Register', component: Register },
-  { path: "/account", name: 'Account', component: AccountPage },
+  { path: "/account",
+    name: 'Account',
+    component: AccountPage,
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.token) {
+        next();
+      } else {
+        next("/login");
+      }
+    },
+  },
   { path: "/info", name: 'Info', component: InfoPage },
   { path: "/dashboard", component: Dashboard }, //TODO: remove and replace with AccountPage
 ];

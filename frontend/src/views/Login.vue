@@ -35,6 +35,7 @@
 						>Sign Up</router-link
 					>
 				</p>
+				<router-link to="/" class="return-btn">Retour à l'accueil</router-link>
 			</div>
 		</div>
 	</Transition>
@@ -60,7 +61,7 @@ const login = async () => {
 	isActive.value = false;
 	setTimeout(() => {
 		transitionName.value = 'slide-down';
-		router.push('/dashboard');
+		router.push('/account');
 	}, 50);
 };
 
@@ -88,4 +89,18 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.return-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 8px 16px;
+  background: #4a8;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  text-align: center;
+}
+.return-btn:hover {
+  background: #3a7;
+}
+</style>

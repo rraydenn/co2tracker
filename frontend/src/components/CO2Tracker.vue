@@ -16,7 +16,7 @@
 
         <!-- Account section -->
         <div id="account-section">
-          <router-link to="/login" id="account-link">👤 Mon compte</router-link>
+          <router-link to="/account" id="account-link">👤 Mon compte</router-link>
         </div>
 
         <!-- Trip form -->
