@@ -1,7 +1,4 @@
-import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
-import History from './history.js'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column } from '@adonisjs/lucid/orm'
 
 export default class Address extends BaseModel {
   @column({ isPrimary: true })
@@ -15,17 +12,4 @@ export default class Address extends BaseModel {
 
   @column({})
   declare longitude: number
-
-  @hasMany(() => History, {
-    foreignKey: 'start_address_id',
-  })
-  declare startHistories: HasMany<typeof History>
-
-  @hasMany(() => History, {
-    foreignKey: 'end_address_id',
-  })
-  declare endHistories: HasMany<typeof History>
-
-  @hasMany(() => FavoriteAddress)
-  declare favoriteAddresses: HasMany<typeof FavoriteAddress>
 }
