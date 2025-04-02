@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 
 import User from './user.js'
@@ -27,12 +26,6 @@ export default class History extends BaseModel {
 
   @column()
   declare co2_total: number
-
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
