@@ -7,7 +7,7 @@ export default class Transport extends BaseModel {
   @column()
   declare name: string
 
-  @column()
+  @column({columnName:'co2_per_km'})
   declare co2_per_km: number
 
   @column()
