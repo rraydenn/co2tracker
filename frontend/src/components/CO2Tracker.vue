@@ -76,9 +76,8 @@
           <label for="transport">Mode de transport:</label>
           <select id="transport" v-model="transport" required>
             <option value="voiture">Voiture</option>
-            <option value="bus">Bus</option>
-            <option value="train">Train</option>
             <option value="avion">Avion</option>
+            <option value="bateau">Bateau</option>
           </select>
 
           <button
@@ -224,106 +223,148 @@ export default defineComponent({
     });
 
     // Methods
-    const initMap = () => {
-      console.log("### Debug: Initializing map with container:", mapContainer.value);
-      if (!mapContainer.value) {
-        console.error("### Debug: Map container element not found!");
-        return;
+  const routeGroup = ref(null);
+  const initMap = () => {
+  console.log("### Debug: Initializing map with container:", mapContainer.value);
+  if (!mapContainer.value) {
+    console.error("### Debug: Map container element not found!");
+    return;
+  }
+
+  map.value = L.map(mapContainer.value).setView([48.8566, 2.3522], 7);
+  console.log("### Debug: Map created and centered on Paris");
+
+  baseLayer.value = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  });
+
+  baseLayer.value.addTo(map.value);
+  console.log("### Debug: OSM tile layer added to map");
+
+  routeGroup.value = L.layerGroup().addTo(map.value);
+
+  map.value.on('click', async (e: L.LeafletMouseEvent) => {
+    console.log("### Debug: Map clicked at coordinates:", e.latlng);
+
+    if (startMarker.value && endMarker.value) {
+      console.log("### Debug: Both markers exist, clearing map and route");
+
+      routeGroup.value.clearLayers();
+      console.log("### Debug: All routes removed");
+      
+
+      // Supprimer les marqueurs
+      map.value.removeLayer(startMarker.value);
+      map.value.removeLayer(endMarker.value);
+      startMarker.value = null;
+      endMarker.value = null;
+      console.log("### Debug: Markers removed");
+
+      return; 
+    }
+
+    // 🎯 Ajouter le marqueur de départ
+    if (!startMarker.value) {
+      console.log("### Debug: Adding start marker");
+      manuallySelected.value.departure = false;
+      addMarker(e.latlng, 'start');
+
+      // Ouvrir le menu si fermé
+      if (!isMenuVisible.value) {
+        console.log("### Debug: Menu is closed, opening it");
+        toggleMenu();
       }
+    }
+    // 🎯 Ajouter le marqueur d’arrivée + Calcul de la route
+    else if (!endMarker.value) {
+      console.log("### Debug: Adding end marker");
+      manuallySelected.value.arrival = false;
+      addMarker(e.latlng, 'end');
 
-      map.value = L.map(mapContainer.value).setView([48.8566, 2.3522], 7);
-      console.log("### Debug: Map created and centered on Paris");
+      console.log("### Debug: Calculating route...");
+      await calculateRoute();
+    }
+  });
+};
 
-      baseLayer.value = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
+
+
+const greenIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+const redIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode = false) => {
+  console.log(`### Debug: Adding ${type} marker at:`, latlng);
+  if (!map.value) {
+    console.error("### Debug: Cannot add marker, map not initialized");
+    return;
+  }
+
+  const isStart = type === 'start';
+
+  if (isStart) {
+    if (startMarker.value) {
+      console.log("### Debug: Updating existing start marker");
+      startMarker.value.setLatLng(latlng);
+    } else {
+      startMarker.value = L.marker(latlng, { icon: greenIcon, draggable: true })
+        .addTo(map.value)
+        .bindPopup('Départ');
+
+      startMarker.value.on('dragend', () => {
+        console.log("### Debug: Start marker dragged");
+        manuallySelected.value.departure = false;
+        const newPos = startMarker.value.getLatLng();
+        reverseGeocode(newPos, 'start');
+        if (endMarker.value) calculateRoute();
       });
 
-      baseLayer.value.addTo(map.value);
-      console.log("### Debug: OSM tile layer added to map");
+      console.log("### Debug: Start marker added");
+    }
+  } else {
+    if (endMarker.value) {
+      console.log("### Debug: Updating existing end marker");
+      endMarker.value.setLatLng(latlng);
+    } else {
+      endMarker.value = L.marker(latlng, { icon: redIcon, draggable: true })
+        .addTo(map.value)
+        .bindPopup('Arrivée');
 
-      map.value.on('click', (e: L.LeafletMouseEvent) => {
-        console.log("### Debug: Map clicked at coordinates:", e.latlng);
-        if (!startMarker.value) {
-          console.log("### Debug: Adding start marker");
-          // Reset manually selected flag because user clicked on map
-          manuallySelected.value.departure = false;
-          addMarker(e.latlng, 'start');
-        } else if (!endMarker.value) {
-          console.log("### Debug: Adding end marker");
-          // Reset manually selected flag because user clicked on map
-          manuallySelected.value.arrival = false;
-          addMarker(e.latlng, 'end');
-          calculateRoute();
-        }
+      endMarker.value.on('dragend', () => {
+        console.log("### Debug: End marker dragged");
+        manuallySelected.value.arrival = false;
+        const newPos = endMarker.value.getLatLng();
+        reverseGeocode(newPos, 'end');
+        if (startMarker.value) calculateRoute();
       });
-    };
 
-    const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode = false) => {
-      console.log(`### Debug: Adding ${type} marker at:`, latlng);
-      if (!map.value) {
-        console.error("### Debug: Cannot add marker, map not initialized");
-        return;
-      }
+      console.log("### Debug: End marker added");
+    }
+  }
 
-      // Update marker
-      if (type === 'start') {
-        if (startMarker.value) {
-          console.log("### Debug: Updating existing start marker");
-          startMarker.value.setLatLng(latlng);
-        } else {
-          startMarker.value = L.marker(latlng, {draggable: true})
-              .addTo(map.value)
-              .bindPopup('Départ');
+  if (!skipReverseGeocode) {
+    reverseGeocode(latlng, type);
+  }
 
-          // Add drag end event handler
-          startMarker.value.on('dragend', () => {
-            console.log("### Debug: Start marker dragged");
-            // Reset the manually selected flag because user is dragging
-            manuallySelected.value.departure = false;
-            // Update departure field with new coordinates
-            const newPos = startMarker.value.getLatLng();
-            reverseGeocode(newPos, 'start');
-            // Recalculate route if both markers exist
-            if (endMarker.value) calculateRoute();
-          });
+  if (startMarker.value && endMarker.value) {
+    //calculateRoute();
+  }
+};
 
-          console.log("### Debug: Start marker added");
-        }
-      } else {
-        if (endMarker.value) {
-          console.log("### Debug: Updating existing end marker");
-          endMarker.value.setLatLng(latlng);
-        } else {
-          endMarker.value = L.marker(latlng, {draggable: true})
-              .addTo(map.value)
-              .bindPopup('Arrivée');
-
-          // Add drag end event handler
-          endMarker.value.on('dragend', () => {
-            console.log("### Debug: End marker dragged");
-            // Reset the manually selected flag because user is dragging
-            manuallySelected.value.arrival = false;
-            // Update arrival field with new coordinates
-            const newPos = endMarker.value.getLatLng();
-            reverseGeocode(newPos, 'end');
-            // Recalculate route if both markers exist
-            if (startMarker.value) calculateRoute();
-          });
-
-          console.log("### Debug: End marker added");
-        }
-      }
-
-      // Reverse geocode the location only if not manually selected
-      if (!skipReverseGeocode) {
-        reverseGeocode(latlng, type);
-      }
-
-      // Calculate route if both markers are present
-      if (startMarker.value && endMarker.value) {
-        calculateRoute();
-      }
-    };
 
     const reverseGeocode = (latlng: L.LatLng, type: 'start' | 'end') => {
       const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=json`;
@@ -352,83 +393,187 @@ export default defineComponent({
           });
     };
 
-    const calculateRoute = () => {
-      console.log("### Debug: Calculating route between markers");
-      if (!map.value || !startMarker.value || !endMarker.value) {
+
+
+
+
+
+    
+
+    const calculateRoute = async () => {
+    console.log("### Debug: Calculating route between markers");
+
+    if (!map.value || !startMarker.value || !endMarker.value) {
         console.error("### Debug: Cannot calculate route, map or markers not initialized");
         return;
-      }
+    }
 
-      // Set flag to indicate calculation in progress
-      routeCalculationInProgress.value = true;
+    // Set flag to indicate calculation in progress
+    routeCalculationInProgress.value = true;
 
-      const startLatLng = startMarker.value.getLatLng();
-      const endLatLng = endMarker.value.getLatLng();
-      console.log("### Debug: Route coordinates - Start:", startLatLng, "End:", endLatLng);
+    const startLatLng = startMarker.value.getLatLng();
+    const endLatLng = endMarker.value.getLatLng();
+    console.log("### Debug: Route coordinates - Start:", startLatLng, "End:", endLatLng);
 
-      const url = `https://router.project-osrm.org/route/v1/driving/${startLatLng.lng},${startLatLng.lat};${endLatLng.lng},${endLatLng.lat}?overview=simplified&geometries=geojson`;
-      console.log("### Debug: OSRM API request URL:", url);
+    // Supprimer la route existante si elle existe
+    if (routeLayer.value && map.value) {
+        console.log("### Debug: Removing existing route layer");
+        map.value.removeLayer(routeLayer.value);
+        routeLayer.value = null;
+    }
 
-      // Cancel any existing request
-      if (currentRouteRequest) {
-        console.log("### Debug: Aborting previous OSRM request");
-        currentRouteRequest.abort();
-        currentRouteRequest = null;
-      }
+    // Mode AVION (ligne droite)
+    if (transport.value === "avion") {
+        console.log("### Debug: Calculating direct flight distance");
 
-      // Create an AbortController for this request
-      currentRouteRequest = new AbortController();
-      const signal = currentRouteRequest.signal;
+        // Calcul de la distance en ligne droite
+        const distanceInMeters = startLatLng.distanceTo(endLatLng);
+        distance.value = (distanceInMeters / 1000).toFixed(2);
+        console.log("### Debug: Flight distance calculated:", distance.value, "km");
 
-      fetch(url, {signal})
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`OSRM request failed with status ${response.status}`);
-            }
-            return response.json();
-          })
-          .then(data => {
-            console.log("### Debug: Route calculation response:", data);
+        // Dessiner une ligne en pointillés rouges
+        const newRoute = L.polyline([startLatLng, endLatLng], {
+            color: 'red',
+            weight: 3,
+            dashArray: '5, 10'
+        }).addTo(map.value);
+        routeGroup.value.addLayer(newRoute);
 
-            // Only update the route if we have valid data
-            if (data.routes && data.routes.length > 0) {
-              if (routeLayer.value && map.value) {
-                console.log("### Debug: Removing existing route layer");
-                map.value.removeLayer(routeLayer.value);
-                routeLayer.value = null;
-              }
+        routeCalculationInProgress.value = false;
+        return;
+    }
 
-              routeLayer.value = L.geoJSON(data.routes[0].geometry, {
+    // Mode BATEAU (partie sur la mer)
+    if (transport.value === "bateau") {
+        console.log("### Debug: Calculating boat route");
+
+        // WIP 
+        /* Bug détecté sur OSMRroute : peut importe le point de départ, la route commencera toujours de 
+          l'europe (donc de là où on se rapproche de 0,0) et non de la position de départ.
+
+          Dans le cas du bateau, cela fait qu'il n'est pas possible de calculer deux chemins séparément
+          en supposant qu'ils seronts interommutés par un océan. 
+        */
+        try {
+            // Calculer la route en voiture de A à B
+            const carRoute = await fetchOSRMRoute(startLatLng, endLatLng, "driving");
+            console.log("### Debug: AB startLatLng:", startLatLng, "endLatLng:", endLatLng);
+            const lastCarPoint = carRoute.routes[0].geometry.coordinates.slice(-1)[0];
+            console.log("### Debug: Car route completed from A to B, last point:", lastCarPoint);
+            
+            // Calculer la route en voiture de Z à Y
+            const carRoute2 = await fetchOSRMRoute({ lat: endLatLng.lat, lng: endLatLng.lng }, { lat: startLatLng.lat, lng: startLatLng.lng }, "driving");
+            console.log("### Debug: YZ startLatLng:", startLatLng, "endLatLng:", endLatLng);
+            const lastCarPoint2 = carRoute2.routes[0].geometry.coordinates.slice(-1)[0];
+            console.log("### Debug: Car route completed from Z to Y, last point:", lastCarPoint2);
+
+            // Tracer la ligne à vol d'oiseau (avion) de B à Y
+            const flightStart = L.latLng(lastCarPoint[1], lastCarPoint[0]);
+            const flightEnd = L.latLng(lastCarPoint2[1], lastCarPoint2[0]);
+            console.log("### Debug: Flight from B to Y - Start:", flightStart, "End:", flightEnd);
+
+
+            // Add the first car route to the map
+            const carRouteLayer = L.geoJSON(carRoute.routes[0].geometry, {
+              color: 'blue',
+              weight: 5,
+              opacity: 0.7
+            }).addTo(map.value);
+            routeGroup.value.addLayer(carRouteLayer);
+
+            // Add the second car route to the map
+            const carRouteLayer2 = L.geoJSON(carRoute2.routes[0].geometry, {
+              color: 'red',
+              weight: 5,
+              opacity: 0.7
+            }).addTo(map.value);
+            routeGroup.value.addLayer(carRouteLayer2);
+
+            // Group the layers to avoid overwriting routeLayer
+            routeLayer.value = L.layerGroup([carRouteLayer, carRouteLayer2]);
+
+            // Tracer la ligne à vol d'oiseau (avion)
+            const newRoute = L.polyline([flightStart, flightEnd], {
+                color: 'green',
+                weight: 3,
+                dashArray: '5, 10'
+            }).addTo(map.value);
+            routeGroup.value.addLayer(newRoute);
+
+
+            const flightDistanceInMeters = flightStart.distanceTo(flightEnd);
+            const distanceInMeters = flightStart.distanceTo(lastCarPoint);
+            const distanceInMeters2 = flightEnd.distanceTo(lastCarPoint2);
+
+
+            const totalDistanceInMeters = distanceInMeters + distanceInMeters2 + flightDistanceInMeters;
+            console.log("### Debug: Total distance calculated:", totalDistanceInMeters, "m");
+            distance.value = (totalDistanceInMeters / 1000).toFixed(2);
+            console.log("### Debug: Final full route distance:", distance.value, "km");
+            
+
+
+        } catch (error) {
+            console.error("### Debug: Error calculating boat route:", error);
+        }
+
+        routeCalculationInProgress.value = false;
+        return;
+    }
+
+    // Mode normal (voiture, bus, train)
+    console.log("### Debug: Using OSRM API for route calculation");
+    try {
+        const routeData = await fetchOSRMRoute(startLatLng, endLatLng, "driving");
+        console.log("### Debug: OSRM route data received:", routeData);
+        /*
+        routeLayer.value = L.geoJSON(routeData.routes[0].geometry, {
                 color: 'blue',
                 weight: 5,
                 opacity: 0.7
-              }).addTo(map.value);
-              console.log("### Debug: New route layer added to map");
+        }).addTo(map.value);
+        console.log("### Debug: New route layer added to map");
+       */
+    const newRoute = L.geoJSON(routeData.routes[0].geometry, {
+      color: 'blue',
+      weight: 5,
+      opacity: 0.7
+      });
 
-              // Update distance
-              const distanceInMeters = data.routes[0].distance;
-              distance.value = (distanceInMeters / 1000).toFixed(2);
-              console.log("### Debug: Route distance calculated:", distance.value, "km");
-            } else {
-              console.error("### Debug: No routes found in OSRM response");
-            }
-          })
-          .catch(error => {
-            // Only log errors that aren't from aborting
-            if (error.name !== 'AbortError') {
-              console.error('### Debug: Error calculating route:', error);
-            } else {
-              console.log('### Debug: Previous route calculation aborted');
-            }
-          })
-          .finally(() => {
-            routeCalculationInProgress.value = false;
-            // Clear the reference to completed request
-            if (currentRouteRequest && currentRouteRequest.signal === signal) {
-              currentRouteRequest = null;
-            }
-          });
-    };
+    routeGroup.value.addLayer(newRoute);
+
+        const distanceInMeters = routeData.routes[0].distance;
+        distance.value = (distanceInMeters / 1000).toFixed(2);
+
+        console.log("### Debug: Route distance calculated:", distance.value, "km");
+    } catch (error) {
+        console.error('### Debug: Error calculating route:', error);
+    }
+
+    routeCalculationInProgress.value = false;
+};
+
+const fetchOSRMRoute = async (start: L.LatLng, end: L.LatLng, profile: string) => {
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
+    console.log("### Debug: Sending OSRM route request to:", url);
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`OSRM request failed with status ${response.status}`);
+    }
+    return response.json();
+};
+
+
+
+
+
+
+
+
+
+
+
 
     const toggleMenu = () => {
       isMenuVisible.value = !isMenuVisible.value;
