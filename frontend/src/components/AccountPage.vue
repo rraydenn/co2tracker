@@ -13,7 +13,7 @@
         <div class="profile-avatar">👤</div>
         <div class="profile-info">
           <h2>Bienvenue, {{ userData?.full_name }}</h2>
-          <p>Membre depuis {{ formatDate(userData?.created_at) }}</p>
+          <p>Membre depuis {{ formatDate(userData?.created_at ?? undefined) }}</p>
         </div>
       </div>
 

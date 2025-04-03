@@ -19,11 +19,11 @@ interface Trip {
 }
 
 interface UserData {
-  id: number;
-  full_name: string;
-  email: string;
-  created_at: string;
-  updated_at: string;
+  id: number | null;
+  full_name: string | null;
+  email: string | null;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 // Variables d'environnement
@@ -62,17 +62,24 @@ export const useAccountStore = defineStore('account', {
 
         const headers = { Authorization: `Bearer ${token}` };
 
-        // Fetch user data
-        const userResponse = await axios.get(`${API_BASE_URL}/user`, { headers });
-        this.userData = userResponse.data;
+        // Fetch user name
+        const userResponse = await axios.get(`${API_BASE_URL}/users/me`, { headers });
+        this.userData = {
+          id: null,
+          full_name: userResponse.data["full_name"],
+          email: null,
+          created_at: userResponse.data["create_at"],
+          updated_at: null
+        };
+        console.log('User data:', this.userData);
 
         // Fetch user trips
-        const tripsResponse = await axios.get(`${API_BASE_URL}/trips`, { headers });
-        this.userTrips = tripsResponse.data;
+        //const tripsResponse = await axios.get(`${API_BASE_URL}/trips`, { headers });
+        //this.userTrips = tripsResponse.data;
 
         // Fetch user stats
-        const statsResponse = await axios.get(`${API_BASE_URL}/user/stats`, { headers });
-        this.userStats = statsResponse.data;
+        //const statsResponse = await axios.get(`${API_BASE_URL}/user/stats`, { headers });
+        //this.userStats = statsResponse.data;
 
         log('Account data fetched successfully', 'info');
       } catch (error) {

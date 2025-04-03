@@ -174,6 +174,7 @@ export default defineComponent({
     const endMarker = ref<L.Marker | null>(null);
     const routeLayer = ref<L.GeoJSON | null>(null);
     const baseLayer = ref<L.TileLayer | null>(null);
+    const routeGroup = ref<L.LayerGroup | null>(null);
 
     // UI state
     const isMenuVisible = ref(false);
@@ -208,7 +209,7 @@ export default defineComponent({
     let arrivalTimer: number | null = null;
 
     const routeCalculationInProgress = ref(false);
-    let currentRouteRequest = null;
+    let currentRouteRequest: AbortController | null = null;
 
     // Computed properties
     const isFormValid = computed(() => {
@@ -222,8 +223,6 @@ export default defineComponent({
       return valid;
     });
 
-    // Methods
-  const routeGroup = ref(null);
   const initMap = () => {
   console.log("### Debug: Initializing map with container:", mapContainer.value);
   if (!mapContainer.value) {
@@ -238,7 +237,7 @@ export default defineComponent({
     attribution: '&copy; OpenStreetMap contributors'
   });
 
-  baseLayer.value.addTo(map.value);
+  if (map.value) baseLayer.value.addTo(map.value as L.Map);
   console.log("### Debug: OSM tile layer added to map");
 
   routeGroup.value = L.layerGroup().addTo(map.value);
@@ -358,10 +357,6 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
 
   if (!skipReverseGeocode) {
     reverseGeocode(latlng, type);
-  }
-
-  if (startMarker.value && endMarker.value) {
-    //calculateRoute();
   }
 };
 
@@ -535,19 +530,22 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
         console.log("### Debug: New route layer added to map");
        */
     const newRoute = L.geoJSON(routeData.routes[0].geometry, {
-      color: 'blue',
-      weight: 5,
-      opacity: 0.7
-      });
-
-    routeGroup.value.addLayer(newRoute);
-
+                color: 'blue',
+                weight: 5,
+                opacity: 0.7
+            });
+            
+            routeGroup.value.addLayer(newRoute);
+            console.log("### Debug: New route layer added to map");
+            
         const distanceInMeters = routeData.routes[0].distance;
-        distance.value = (distanceInMeters / 1000).toFixed(2);
+            distance.value = (distanceInMeters / 1000).toFixed(2);
 
-        console.log("### Debug: Route distance calculated:", distance.value, "km");
+            console.log("### Debug: Route distance calculated:", distance.value, "km");
     } catch (error) {
-        console.error('### Debug: Error calculating route:', error);
+            console.error('### Debug: Error calculating route:', error);
+
+        
     }
 
     routeCalculationInProgress.value = false;
