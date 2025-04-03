@@ -43,10 +43,11 @@ export default class UsersController {
     response.status(201)
   }
 
-  async getMyFullName({ auth }: HttpContext) {
+  async getMyInfo({ auth }: HttpContext) {
     const user = await auth.authenticate()
     return {
       full_name: user.fullName,
+      create_at: user.createdAt,
     }
   }
 }

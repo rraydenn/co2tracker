@@ -15,7 +15,7 @@ const AddressController = () => import('#controllers/addresses_controller')
 
 router.post('/api/users', [UsersController, 'create'])
 
-router.get('/api/users/me', [UsersController, 'getMyFullName'])
+router.get('/api/users/me', [UsersController, 'getMyInfo'])
 
 router.post('/api/login', [UsersController, 'login'])
 
