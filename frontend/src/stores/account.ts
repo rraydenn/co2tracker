@@ -59,32 +59,48 @@ export const useAccountStore = defineStore('account', {
       try {
         this.loading = true;
         this.error = null;
-
+    
         const headers = { Authorization: `Bearer ${token}` };
-
-        // Fetch user name
-        const userResponse = await axios.get(`${API_BASE_URL}/users/me`, { headers });
-        this.userData = {
-          id: null,
-          full_name: userResponse.data["full_name"],
-          email: null,
-          created_at: userResponse.data["create_at"],
-          updated_at: null
-        };
-        console.log('User data:', this.userData);
-
-        // Fetch user trips
-        //const tripsResponse = await axios.get(`${API_BASE_URL}/trips`, { headers });
-        //this.userTrips = tripsResponse.data;
-
-        // Fetch user stats
-        //const statsResponse = await axios.get(`${API_BASE_URL}/user/stats`, { headers });
-        //this.userStats = statsResponse.data;
-
+    
+        // Fetch user name with better error handling
+        try {
+          console.log('Fetching user data from API...');
+          const userResponse = await axios.get(`${API_BASE_URL}/users/me`, { headers });
+          console.log('API Response:', userResponse.data);
+          
+          if (userResponse.data && typeof userResponse.data === 'object') {
+            this.userData = {
+              id: userResponse.data.id || null,
+              full_name: userResponse.data.full_name || null,
+              email: userResponse.data.email || null,
+              created_at: userResponse.data.create_at || null,
+              updated_at: userResponse.data.updated_at || null
+            };
+            
+            console.log('User data set:', this.userData);
+          } else {
+            throw new Error('Invalid response format from API');
+          }
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+          throw err;
+        }
+    
+        // The trips and stats can be uncommented when your API supports them
+        /* 
+        const tripsResponse = await axios.get(`${API_BASE_URL}/trips`, { headers });
+        this.userTrips = tripsResponse.data;
+    
+        const statsResponse = await axios.get(`${API_BASE_URL}/user/stats`, { headers });
+        this.userStats = statsResponse.data;
+        */
+    
         log('Account data fetched successfully', 'info');
+        return this.userData;
       } catch (error) {
         log('Error fetching account data: ' + (error as Error).message, 'error');
         this.error = 'Erreur lors du chargement des données. Veuillez réessayer.';
+        throw error;
       } finally {
         this.loading = false;
       }
