@@ -8,10 +8,12 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
 const UsersController = () => import('#controllers/users_controller')
 const TransportsController = () => import('#controllers/transports_controller')
 const AddressController = () => import('#controllers/addresses_controller')
+const HistoryController = () => import('#controllers/histories_controller')
 
 router.post('/api/users', [UsersController, 'create'])
 
@@ -39,6 +41,16 @@ router.post('/api/address', [AddressController, 'create'])
 router.delete('/api/address/:id', [AddressController, 'destroy'])
 router.get('/api/address/:id', [AddressController, 'show'])
 router.put('/api/address/:id', [AddressController, 'update'])
+
+router.group(() => {
+  router.get('/', [HistoryController, 'index'])
+  router.post('/', [HistoryController, 'create'])
+  router.get('/:id', [HistoryController, 'show'])
+  router.delete('/:id', [HistoryController, 'destroy'])
+})
+  .prefix('/api/users/history')
+  .use(middleware.auth())
+
 
 router.get('/api', async () => {
   return { message: 'Welcome to my adonis api' }
