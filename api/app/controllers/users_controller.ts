@@ -47,7 +47,7 @@ export default class UsersController {
     const user = await auth.authenticate()
     return {
       full_name: user.fullName,
-      create_at: user.createdAt,
+      created_at: user.createdAt,
     }
   }
 }
