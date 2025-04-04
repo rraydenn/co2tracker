@@ -3,7 +3,9 @@ image: node:23-alpine
 stages:
   - setup
   - sonarqube-check
+  - build
   - deploy
+
 
 variables:
   DEPLOY_PATH: '/var/www/'
