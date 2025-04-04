@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 
 import User from './user.js'
@@ -10,22 +11,23 @@ export default class History extends BaseModel {
   declare id: number
 
   @column()
-  declare user_id: number
+  declare userId: number
 
   @column()
-  declare transport_id: number
+  declare transportId: number
 
   @column()
-  declare start_address_id: number
+  declare startAddressId: number
 
   @column()
-  declare end_address_id: number
+  declare endAddressId: number
 
   @column()
   declare distance_km: number
 
-  @column()
+  @column({columnName: "co2_total"})
   declare co2_total: number
+
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
@@ -34,12 +36,12 @@ export default class History extends BaseModel {
   declare transport: BelongsTo<typeof Transport>
 
   @belongsTo(() => Address, {
-    foreignKey: 'start_address_id',
+    foreignKey: 'startAddressId',
   })
   declare startAddress: BelongsTo<typeof Address>
 
   @belongsTo(() => Address, {
-    foreignKey: 'end_address_id',
+    foreignKey: 'endAddressId',
   })
   declare endAddress: BelongsTo<typeof Address>
 }

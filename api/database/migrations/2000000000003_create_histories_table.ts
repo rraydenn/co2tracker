@@ -32,6 +32,8 @@ export default class extends BaseSchema {
 
       table.float('distance_km').notNullable()
       table.float('co2_total').notNullable()
+      table.timestamp('created_at')
+      table.timestamp('updated_at')
     })
   }
 
