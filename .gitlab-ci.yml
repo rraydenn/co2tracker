@@ -85,6 +85,7 @@ deploy_api:
   script:
     - echo "Deploying API to $HOST..."
     - echo "Copying API build to $HOST..."
+    - ls build
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/build $DEPLOY_USER@$HOST:$DEPLOY_PATH/api
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
       cd $DEPLOY_PATH/api &&
