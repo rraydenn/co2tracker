@@ -46,7 +46,7 @@ build_api:
   script:
     - echo "Injecting API env config"
     - cd ./api
-    - echo "$ENV_API_PROD_CONFIG" > .env.production
+    - echo "$ENV_API_PROD_CONFIG" > .env
     - echo "Installing API dependencies"
     - npm install
     - node ace build
