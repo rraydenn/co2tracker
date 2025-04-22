@@ -158,6 +158,7 @@ interface AutocompleteResult {
   display_name: string;
   lat: string;
   lon: string;
+  length: number;
 }
 
 export default defineComponent({
@@ -171,9 +172,9 @@ export default defineComponent({
     const map = ref<L.Map | null>(null);
     const startMarker = ref<L.Marker | null>(null);
     const endMarker = ref<L.Marker | null>(null);
-    const routeLayer = ref<L.GeoJSON | null>(null);
+    const routeLayer = ref<L.GeoJSON | L.LayerGroup | null>(null);
     const baseLayer = ref<L.TileLayer | null>(null);
-    const routeGroup = ref<L.LayerGroup | null>(null);
+    const routeGroup = ref<L.LayerGroup>(L.layerGroup());
 
     // UI state
     const isMenuVisible = ref(false);
@@ -190,7 +191,7 @@ export default defineComponent({
     const co2BarWidth = ref(50); // Default value for demonstration
     const manuallySelected = ref({
       departure: false,
-
+      arrival: false
     });
 
     // Autocomplete results
@@ -243,7 +244,7 @@ export default defineComponent({
   if (map.value) baseLayer.value.addTo(map.value as L.Map);
   console.log("### Debug: OSM tile layer added to map");
 
-  routeGroup.value = L.layerGroup().addTo(map.value);
+  routeGroup.value.addTo(map.value as L.Map);
 
   map.value.on('click', async (e: L.LeafletMouseEvent) => {
     console.log("### Debug: Map clicked at coordinates:", e.latlng);
@@ -251,13 +252,15 @@ export default defineComponent({
     if (startMarker.value && endMarker.value) {
       console.log("### Debug: Both markers exist, clearing map and route");
 
-      routeGroup.value.clearLayers();
+      routeGroup.value?.clearLayers();
       console.log("### Debug: All routes removed");
       
 
       // Supprimer les marqueurs
-      map.value.removeLayer(startMarker.value);
-      map.value.removeLayer(endMarker.value);
+      //TEMPORAIRE
+      //TODO : ajouter un bouton de clear et supprimer les interactions avec la map quand le user a rentré les 2
+      startMarker.value?.remove();
+      endMarker.value?.remove();
       startMarker.value = null;
       endMarker.value = null;
       console.log("### Debug: Markers removed");
@@ -324,14 +327,16 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
       startMarker.value.setLatLng(latlng);
     } else {
       startMarker.value = L.marker(latlng, { icon: greenIcon, draggable: true })
-        .addTo(map.value)
+        .addTo(map.value as L.Map)
         .bindPopup('Départ');
 
       startMarker.value.on('dragend', () => {
         console.log("### Debug: Start marker dragged");
         manuallySelected.value.departure = false;
-        const newPos = startMarker.value.getLatLng();
-        reverseGeocode(newPos, 'start');
+        if (startMarker.value) {
+          const newPos = startMarker.value.getLatLng();
+          reverseGeocode(newPos, 'start');
+        }
         if (endMarker.value) calculateRoute();
       });
 
@@ -343,14 +348,16 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
       endMarker.value.setLatLng(latlng);
     } else {
       endMarker.value = L.marker(latlng, { icon: redIcon, draggable: true })
-        .addTo(map.value)
+        .addTo(map.value as L.Map)
         .bindPopup('Arrivée');
 
       endMarker.value.on('dragend', () => {
         console.log("### Debug: End marker dragged");
         manuallySelected.value.arrival = false;
-        const newPos = endMarker.value.getLatLng();
-        reverseGeocode(newPos, 'end');
+        if(endMarker.value) {
+          const newPos = endMarker.value.getLatLng();
+          reverseGeocode(newPos, 'end');
+        }
         if (startMarker.value) calculateRoute();
       });
 
@@ -416,7 +423,7 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
     // Supprimer la route existante si elle existe
     if (routeLayer.value && map.value) {
         console.log("### Debug: Removing existing route layer");
-        map.value.removeLayer(routeLayer.value);
+        routeLayer.value?.remove();
         routeLayer.value = null;
     }
 
@@ -434,8 +441,8 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
             color: 'red',
             weight: 3,
             dashArray: '5, 10'
-        }).addTo(map.value);
-        routeGroup.value.addLayer(newRoute);
+        }).addTo(map.value as L.Map);
+        routeGroup.value?.addLayer(newRoute);
 
         routeCalculationInProgress.value = false;
         return;
@@ -460,16 +467,13 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
                 console.error("### Debug: No nearest port found for start location");
                 return;
             }
-            const carRoute = await fetchOSRMRoute(startLatLng, { lat: nearestPort1.lat, lng: nearestPort1.lon }, "driving-car");
+            const endLatLng = L.latLng(nearestPort1.lat, nearestPort1.lon);
+            const carRoute = await fetchOSRMRoute(startLatLng, endLatLng, "driving-car");
             console.log("### Debug: AB startLatLng:", startLatLng, "nearestPort:", nearestPort1);
 
             // Add the first car route to the map
-            const carRouteLayer = L.geoJSON(carRoute.features[0].geometry, {
-              color: 'blue',
-              weight: 5,
-              opacity: 0.7
-            }).addTo(map.value);
-            routeGroup.value.addLayer(carRouteLayer);
+            const carRouteLayer = L.geoJSON(carRoute.features[0].geometry).addTo(map.value as L.Map);
+            routeGroup.value?.addLayer(carRouteLayer);
 
 
 
@@ -480,20 +484,18 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
                 console.error("### Debug: No nearest port found for end location");
                 return;
             }
-            const carRoute2 = await fetchOSRMRoute({ lat: endLatLng.lat, lng: endLatLng.lng }, { lat: nearestPort2.lat, lng: nearestPort2.lon }, "driving-car");
+            const start = L.latLng(endLatLng.lat, endLatLng.lng);
+            const end = L.latLng(nearestPort2.lat, nearestPort2.lon);
+            const carRoute2 = await fetchOSRMRoute(start, end, "driving-car");
             console.log("### Debug: YZ startLatLng:", endLatLng, "endLatLng:", nearestPort2);
 
 
             // Add the second car route to the map
-            const carRouteLayer2 = L.geoJSON(carRoute2.features[0].geometry, {
-              color: 'red',
-              weight: 5,
-              opacity: 0.7
-            }).addTo(map.value);
-            routeGroup.value.addLayer(carRouteLayer2);
+            const carRouteLayer2 = L.geoJSON(carRoute2.features[0].geometry).addTo(map.value as L.Map);
+            routeGroup.value?.addLayer(carRouteLayer2);
 
             // Group the layers to avoid overwriting routeLayer
-            routeLayer.value = L.layerGroup([carRouteLayer, carRouteLayer2]);
+            routeLayer.value = L.layerGroup([carRouteLayer, carRouteLayer2]) as L.LayerGroup;
 
 
 
@@ -507,8 +509,8 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
                 color: 'green',
                 weight: 3,
                 dashArray: '5, 10'
-            }).addTo(map.value);
-            routeGroup.value.addLayer(boatRoute);
+            }).addTo(map.value as L.Map);
+            routeGroup.value?.addLayer(boatRoute);
 
 
             const flightDistanceInMeters = flightStart.distanceTo(flightEnd);
@@ -545,13 +547,9 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
         }).addTo(map.value);
         console.log("### Debug: New route layer added to map");
        */
-    const newRoute = L.geoJSON(routeData.features[0].geometry, {
-                color: 'blue',
-                weight: 5,
-                opacity: 0.7
-            });
+    const newRoute = L.geoJSON(routeData.features[0].geometry,);
             
-            routeGroup.value.addLayer(newRoute);
+            routeGroup.value?.addLayer(newRoute);
             console.log("### Debug: New route layer added to map");
             
         const distanceInMeters = routeData.features[0].properties.summary.distance;
@@ -658,16 +656,6 @@ async function findNearestPort(startLat: number, startLng: number) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
     const toggleMenu = () => {
       isMenuVisible.value = !isMenuVisible.value;
       console.log("### Debug: Menu visibility toggled to:", isMenuVisible.value);
@@ -698,9 +686,9 @@ async function findNearestPort(startLat: number, startLng: number) {
             .then(data => {
               console.log("### Debug: Received departure autocomplete results:", data.length, "items");
               departureResults.value = data;
-              departureResults.length = data.length;
+              departureResults.value.length = data.length;
               console.log("### Debug: Departure results set:", departureResults.value);
-              console.log("### Debug: Departure results length:", departureResults.length);
+              console.log("### Debug: Departure results length:", departureResults.value.length);
             })
             .catch(error => {
               console.error('### Debug: Error fetching departure suggestions:', error);
@@ -734,9 +722,9 @@ async function findNearestPort(startLat: number, startLng: number) {
             .then(data => {
               console.log("### Debug: Received arrival autocomplete results:", data.length, "items");
               arrivalResults.value = data;
-              arrivalResults.length = data.length;
+              arrivalResults.value.length = data.length;
               console.log("### Debug: Arrival results set:", arrivalResults.value);
-              console.log("### Debug: Arrival results length:", arrivalResults.length);
+              console.log("### Debug: Arrival results length:", arrivalResults.value.length);
             })
             .catch(error => {
               console.error('### Debug: Error fetching arrival suggestions:', error);
@@ -758,7 +746,8 @@ async function findNearestPort(startLat: number, startLng: number) {
       console.log("### Debug: Creating start marker from selected result at:", lat, lng);
 
       // Pass true to skip reverse geocoding
-      addMarker({lat, lng}, 'start', true);
+      const latlng = L.latLng(lat, lng);
+      addMarker(latlng, 'start', true);
     };
 
     const selectArrivalResult = (result: AutocompleteResult) => {
@@ -774,7 +763,8 @@ async function findNearestPort(startLat: number, startLng: number) {
       console.log("### Debug: Creating end marker from selected result at:", lat, lng);
 
       // Pass true to skip reverse geocoding
-      addMarker({lat, lng}, 'end', true);
+      const latlng = L.latLng(lat, lng);
+      addMarker(latlng, 'end', true);
     };
 
     const onTravelFormSubmit = () => {
