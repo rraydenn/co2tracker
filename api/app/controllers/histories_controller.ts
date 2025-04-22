@@ -6,7 +6,10 @@ import { createHistoryValidator } from '#validators/history'
 
 export default class HistoriesController {
   /**
-   * Cherche une adresse existante basée sur les coordonnées ou l'adresse complète
+   * @summary Find an existing address
+   * @description Searches for an existing address based on coordinates or full address.
+   * @param {Object} addressData - The address data containing full address, latitude, and longitude.
+   * @returns {Promise<Address|null>} The found address or null if not found.
    */
   private async findExistingAddress(addressData: {
     full_address: string
@@ -32,7 +35,11 @@ export default class HistoriesController {
   }
 
   /**
-   * Récupérer l'historique des trajets de l'utilisateur connecté
+   * @index
+   * @summary Get user's travel history
+   * @description Retrieves the travel history of the authenticated user.
+   * @param {HttpContext} context - The HTTP context containing the authentication and response objects.
+   * @returns {Promise<void>} A JSON response with the user's travel history.
    */
   async index({ auth, response }: HttpContext) {
 
@@ -46,7 +53,11 @@ export default class HistoriesController {
   }
 
   /**
-   * Récupérer un trajet spécifique
+   * @show
+   * @summary Get a specific travel history entry
+   * @description Retrieves a specific travel history entry.
+   * @param {HttpContext} context - The HTTP context containing the authentication, parameters, and response objects.
+   * @returns {Promise<void>} A JSON response with the specific travel history or a not found message.
    */
   async show({ auth, params, response }: HttpContext) {
     const history = await History.query()
@@ -65,7 +76,11 @@ export default class HistoriesController {
   }
 
   /**
-   * Créer un nouveau trajet dans l'historique
+   * @create
+   * @summary Create a new travel history entry
+   * @description Creates a new travel history entry.
+   * @param {HttpContext} context - The HTTP context containing the authentication, request, and response objects.
+   * @returns {Promise<void>} A JSON response with the created travel history or a bad request message.
    */
   async create({ auth, request, response }: HttpContext) {
     const data = await request.validateUsing(createHistoryValidator)
@@ -123,7 +138,11 @@ export default class HistoriesController {
   }
 
   /**
-   * Supprimer un trajet
+   * @destroy
+   * @summary Delete a specific travel history entry
+   * @description Deletes a specific travel history entry.
+   * @param {HttpContext} context - The HTTP context containing the authentication, parameters, and response objects.
+   * @returns {Promise<void>} A no content response or a not found message.
    */
   async destroy({ auth, params, response }: HttpContext) {
     const history = await History.query()
