@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import CO2Tracker from "@/components/CO2Tracker.vue";
 import InfoPage from "@/components/InfoPage.vue";
 import AccountPage from "@/components/AccountPage.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import Dashboard from "../views/Dashboard.vue";
 import { useAuthStore } from "@/stores/auth";
-
+import HomePage from "@/views/HomePage.vue";
+import CO2Tracker from "@/components/CO2Tracker.vue";
+  
 
 const routes: Array<RouteRecordRaw> = [
-  { path: "/", name: 'Home', component: CO2Tracker },
+  { path: "/", name: 'Home', component: HomePage },
   { path: "/login", name: 'Login', component: Login },
   { path: "/register", name: 'Register', component: Register },
   { 
