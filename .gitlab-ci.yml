@@ -88,7 +88,7 @@ deploy_api:
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/build $DEPLOY_USER@$HOST:$DEPLOY_PATH/api
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
       cd $DEPLOY_PATH/api &&
-      node ace migrations:fresh &&
+      node ace migrations:refresh &&
       npm ci --omit=dev &&
       cd .. &&
       pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js"
@@ -96,20 +96,13 @@ deploy_api:
 ###########################
 # Deploy Front to server
 ###########################
-# deploy_frontend:
-#   stage: deploy
-#   needs: [build_frontend]
-#   only:
-#     - main
-#   script:
-#     - echo "Deploying Frontend to $HOST..."
-#     - echo "Copying Frontend build to $HOST..."
-#     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/dist $DEPLOY_USER@$HOST:$DEPLOY_PATH/frontend
+deploy_frontend:
+   stage: deploy
+   needs: [build_frontend]
+   only:
+     - main
+   script:
+     - echo "Deploying Frontend to $HOST..."
+     - echo "Copying Frontend build to $HOST..."
+     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/dist $DEPLOY_USER@$HOST:$DEPLOY_PATH/frontend
 
-deploy_and_run_frontend:
-  stage: deploy
-  only:
-    - main
-  script:
-    - mv maquette-front dist
-    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./dist $DEPLOY_USER@$HOST:$DEPLOY_PATH
