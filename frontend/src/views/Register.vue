@@ -46,6 +46,7 @@
 						>Login</router-link
 					>
 				</p>
+				<router-link to="/" class="return-btn">Retour à l'accueil</router-link>
 			</div>
 		</div>
 	</Transition>
@@ -117,4 +118,18 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.return-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 8px 16px;
+  background: #4a8;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  text-align: center;
+}
+.return-btn:hover {
+  background: #3a7;
+}
+</style>

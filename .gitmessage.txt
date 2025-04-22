@@ -1,0 +1,6 @@
+type(scope): message descriptif clair (min 10 caractères)
+
+# Exemples :
+# feat(frontend): bla bla bla
+# fix(backend): bla bla bla
+# deploiment(): bla bla bla

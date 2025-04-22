@@ -20,9 +20,9 @@ router.beforeEach((to, from, next) => {
     transitionName.value = "slide-right";
   } else if (from.path === "/register" && to.path === "/login") {
     transitionName.value = "slide-left";
-  } else if (from.path === "/login" && to.path === "/dashboard") {
+  } else if (from.path === "/login" && to.path === "/account") {
     transitionName.value = "slide-down";
-  } else if (from.path === "/dashboard" && to.path === "/login") {
+  } else if (from.path === "/account" && to.path === "/login") {
     transitionName.value = "slide-up";
   }
   next();
