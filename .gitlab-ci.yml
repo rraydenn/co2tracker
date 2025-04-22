@@ -88,7 +88,7 @@ deploy_api:
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/build $DEPLOY_USER@$HOST:$DEPLOY_PATH/api
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
       cd $DEPLOY_PATH/api &&
-      node ace migrations:refresh &&
+      node ace migration:fresh &&
       npm ci --omit=dev &&
       cd .. &&
       pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js"
