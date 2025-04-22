@@ -11,8 +11,6 @@
       </section>
 
       <aside id="menu" :class="{ visible: isMenuVisible, hidden: !isMenuVisible }">
-        <!-- <button id="close-menu" @click="toggleMenu" :disabled="!isMenuVisible">x</button> 
-         TOTO: enlever ? -->
 
         <!-- Account section -->
         <div id="account-section">
@@ -211,6 +209,10 @@ export default defineComponent({
 
     const routeCalculationInProgress = ref(false);
     let currentRouteRequest: AbortController | null = null;
+
+    // URLs
+    const OSRM_BASE_URL = import.meta.env.VITE_OSRM_BASE_URL;
+    const OSRM_API_KEY = import.meta.env.VITE_OSRM_API_KEY;
 
     // Computed properties
     const isFormValid = computed(() => {
@@ -458,11 +460,11 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
                 console.error("### Debug: No nearest port found for start location");
                 return;
             }
-            const carRoute = await fetchOSRMRoute(startLatLng, { lat: nearestPort1.lat, lng: nearestPort1.lon }, "driving");
+            const carRoute = await fetchOSRMRoute(startLatLng, { lat: nearestPort1.lat, lng: nearestPort1.lon }, "driving-car");
             console.log("### Debug: AB startLatLng:", startLatLng, "nearestPort:", nearestPort1);
 
             // Add the first car route to the map
-            const carRouteLayer = L.geoJSON(carRoute.routes[0].geometry, {
+            const carRouteLayer = L.geoJSON(carRoute.features[0].geometry, {
               color: 'blue',
               weight: 5,
               opacity: 0.7
@@ -478,12 +480,12 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
                 console.error("### Debug: No nearest port found for end location");
                 return;
             }
-            const carRoute2 = await fetchOSRMRoute({ lat: endLatLng.lat, lng: endLatLng.lng }, { lat: nearestPort2.lat, lng: nearestPort2.lon }, "driving");
+            const carRoute2 = await fetchOSRMRoute({ lat: endLatLng.lat, lng: endLatLng.lng }, { lat: nearestPort2.lat, lng: nearestPort2.lon }, "driving-car");
             console.log("### Debug: YZ startLatLng:", endLatLng, "endLatLng:", nearestPort2);
 
 
             // Add the second car route to the map
-            const carRouteLayer2 = L.geoJSON(carRoute2.routes[0].geometry, {
+            const carRouteLayer2 = L.geoJSON(carRoute2.features[0].geometry, {
               color: 'red',
               weight: 5,
               opacity: 0.7
@@ -533,7 +535,7 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
     // Mode normal (voiture, bus, train)
     console.log("### Debug: Using OSRM API for route calculation");
     try {
-        const routeData = await fetchOSRMRoute(startLatLng, endLatLng, "driving");
+        const routeData = await fetchOSRMRoute(startLatLng, endLatLng, "driving-car");
         console.log("### Debug: OSRM route data received:", routeData);
         /*
         routeLayer.value = L.geoJSON(routeData.routes[0].geometry, {
@@ -543,7 +545,7 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
         }).addTo(map.value);
         console.log("### Debug: New route layer added to map");
        */
-    const newRoute = L.geoJSON(routeData.routes[0].geometry, {
+    const newRoute = L.geoJSON(routeData.features[0].geometry, {
                 color: 'blue',
                 weight: 5,
                 opacity: 0.7
@@ -552,7 +554,7 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
             routeGroup.value.addLayer(newRoute);
             console.log("### Debug: New route layer added to map");
             
-        const distanceInMeters = routeData.routes[0].distance;
+        const distanceInMeters = routeData.features[0].properties.summary.distance;
             distance.value = (distanceInMeters / 1000).toFixed(2);
 
             console.log("### Debug: Route distance calculated:", distance.value, "km");
@@ -566,7 +568,7 @@ const addMarker = (latlng: L.LatLng, type: 'start' | 'end', skipReverseGeocode =
 };
 
 const fetchOSRMRoute = async (start: L.LatLng, end: L.LatLng, profile: string) => {
-    const url = `https://router.project-osrm.org/route/v1/${profile}/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
+    const url = `${OSRM_BASE_URL}/v2/directions/${profile}?api_key=${OSRM_API_KEY}&start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`;
     console.log("### Debug: Sending OSRM route request to:", url);
 
     const response = await fetch(url);
