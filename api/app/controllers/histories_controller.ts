@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import History from '#models/history'
 import Transport from '#models/transport'
 import Address from '#models/address'
-import { createHistoryValidator, updateHistoryValidator } from '#validators/history'
+import { createHistoryValidator } from '#validators/history'
 
 export default class HistoriesController {
   /**
