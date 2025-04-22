@@ -9,6 +9,8 @@
 
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
+import AutoSwagger from "adonis-autoswagger";
+import swagger from "#config/swagger";
 
 const UsersController = () => import('#controllers/users_controller')
 const TransportsController = () => import('#controllers/transports_controller')
@@ -55,3 +57,13 @@ router.group(() => {
 router.get('/api', async () => {
   return { message: 'Welcome to my adonis api' }
 })
+
+
+router.get("/swagger", async () => {
+  return AutoSwagger.default.docs(router.toJSON(), swagger);
+});
+
+
+router.get("/docs", async () => {
+  return AutoSwagger.default.ui("/swagger", swagger);
+});
