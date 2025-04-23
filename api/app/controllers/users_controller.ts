@@ -100,4 +100,27 @@ export default class UsersController {
     }
   }
 
+  async getRanking({ response }: HttpContext) {
+    const ranking = await db
+      .from('users')
+      .leftJoin('histories', 'users.id', 'histories.user_id')
+      .select(
+        'users.id',
+        'users.full_name',
+        db.raw('COALESCE(SUM(histories.co2_total), 0) as total_co2'),
+        db.raw('COALESCE(SUM(histories.distance_km), 0) as total_distance')
+      )
+      .groupBy('users.id', 'users.full_name')
+      .orderBy('total_distance', 'asc').limit(100)
+
+    const rankedUsers = ranking.map((user, index) => ({
+      rank: index + 1,
+      full_name: user.full_name,
+      total_co2: Number(user.total_co2),
+      total_distance: Number(user.total_distance)
+    }))
+
+    return response.ok(rankedUsers)
+  }
+
 }

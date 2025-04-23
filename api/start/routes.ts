@@ -18,25 +18,18 @@ const AddressController = () => import('#controllers/addresses_controller')
 const HistoryController = () => import('#controllers/histories_controller')
 
 router.post('/api/users', [UsersController, 'create'])
-
 router.get('/api/users', [UsersController, 'index'])
-
 router.get('/api/users/me', [UsersController, 'getMyInfo'])
+router.get('/api/users/ranking', [UsersController, 'getRanking'])
 
 router.post('/api/login', [UsersController, 'login'])
-
 router.post('/api/logout', [UsersController, 'logout'])
 
 router.get('/api/transports', [TransportsController, 'index'])
-
 router.post('/api/transports', [TransportsController, 'create'])
-
 router.delete('/api/transports/:id', [TransportsController, 'delete'])
-
 router.get('/api/transports/:id', [TransportsController, 'get'])
-
 router.put('/api/transports/:id', [TransportsController, 'put'])
-
 router.patch('/api/transports/:id', [TransportsController, 'patch'])
 
 
