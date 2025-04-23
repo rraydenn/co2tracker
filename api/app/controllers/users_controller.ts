@@ -9,7 +9,7 @@ export default class UsersController {
    * @index
    * @summary Get array of users
    * @description Returns an array of users with id, fullname, email, created at, updated at.
-   * @returns {Promise<Array>} Array of user objects.
+   * @responseBody 200 - <User[]>
    */
   index() {
     return db.query().select('id', 'full_name', 'email', 'created_at', 'updated_at').from('users')
@@ -19,8 +19,6 @@ export default class UsersController {
    * @login
    * @summary Authenticate user
    * @description Authenticates a user and returns an access token.
-   * @param {HttpContext} context - The HTTP context containing the request.
-   * @returns {Promise<Object>} An object containing the token type and value.
    */
   async login({ request }: HttpContext) {
     const body = request.body()
@@ -32,6 +30,7 @@ export default class UsersController {
     if (user) {
       const token = await User.accessTokens.create(user)
       console.log('Logged in')
+      
       return {
         type: 'bearer',
         token: token.value!.release(),
@@ -43,8 +42,6 @@ export default class UsersController {
    * @logout
    * @summary Logout user
    * @description Logs out the authenticated user by deleting their access token.
-   * @param {HttpContext} context - The HTTP context containing the authentication object.
-   * @returns {Promise<void>}
    */
   async logout({ auth }: HttpContext) {
     const user = await auth.authenticate()
@@ -55,8 +52,7 @@ export default class UsersController {
    * @create
    * @summary Create a new user
    * @description Creates a new user and stores it in the database.
-   * @param {HttpContext} context - The HTTP context containing the request and response.
-   * @returns {Promise<void>}
+   * @responseBody 201 - <User> // returns no content
    */
   async create({ request, response }: HttpContext) {
     const body = request.body()
@@ -74,11 +70,13 @@ export default class UsersController {
    * @getMyInfo
    * @summary Get authenticated user's information
    * @description Retrieves the authenticated user's information.
-   * @param {HttpContext} context - The HTTP context containing the authentication object.
-   * @returns {Promise<Object>} An object containing the user's full name and creation date.
+   * @responseBody 200 - <User>.only(full_name, created_at)
    */
   async getMyInfo({ auth }: HttpContext) {
     const user = await auth.authenticate()
+    if (!user) {
+      return { message: 'User not found' }
+    }
     return {
       full_name: user.fullName,
       created_at: user.createdAt,

@@ -8,9 +8,10 @@ export default class TransportsController {
      * @index
      * @summary Get array of transports
      * @description Retrieves all transports with their details.
-     * @returns {Promise<Array>} Array of transport objects.
+     * @responseBody 200 - <Transport[]> 
      */
-    index() {
+    index({response}: HttpContext) {
+        response.status(200)
         return db.query().select('id', 'name', 'co2_per_km', 'average_speed').from('transports')
     }
 
@@ -18,8 +19,7 @@ export default class TransportsController {
      * @create
      * @summary Create a new transport
      * @description Creates a new transport entry in the database.
-     * @param {HttpContext} context - The HTTP context containing the request and response objects.
-     * @returns {Promise<void>} A response with status 201 for successful creation.
+     * @responseBody 201 - <void> // returns no content
      */
     async create({ request, response }: HttpContext) {
         const body = request.body()
@@ -34,8 +34,7 @@ export default class TransportsController {
      * @delete
      * @summary Delete a transport
      * @description Deletes a specific transport by ID.
-     * @param {HttpContext} context - The HTTP context containing the parameters and response objects.
-     * @returns {Promise<void>} A no content response or a not found message.
+     * @responseBody 204 - <void> // returns no content
      */
     async delete({ params, response }: HttpContext) {
         const transport = await Transport.find(params.id)
@@ -50,8 +49,7 @@ export default class TransportsController {
      * @get
      * @summary Get a specific transport
      * @description Retrieves a specific transport by ID.
-     * @param {HttpContext} context - The HTTP context containing the parameters and response objects.
-     * @returns {Promise<void>} A JSON response with the specific transport or a not found message.
+     * @responseBody 200 - <Transport> // returns model specification
      */
     async get({ params, response }: HttpContext) {
         const transport = await Transport.find(params.id)
@@ -65,8 +63,8 @@ export default class TransportsController {
      * @put
      * @summary Update a transport
      * @description Updates an existing transport by ID with provided data.
-     * @param {HttpContext} context - The HTTP context containing the parameters, request, and response objects.
-     * @returns {Promise<void>} A JSON response with the updated transport or a not found message.
+     * @responseBody 200 - <Transport> // returns model specification
+     * @responseBody 404 - <void> // returns no content
      */
     async put({ request, params, response }: HttpContext) {
         const transport = await Transport.find(params.id)
@@ -83,8 +81,7 @@ export default class TransportsController {
      * @patch
      * @summary Partially update a transport
      * @description Partially updates an existing transport by ID with provided data.
-     * @param {HttpContext} context - The HTTP context containing the parameters, request, and response objects.
-     * @returns {Promise<void>} A JSON response with the updated transport or a not found message.
+     * @responseBody 200 - <Transport> // returns model specification
      */
     async patch({ request, params, response }: HttpContext) {
         const transport = await Transport.find(params.id)
