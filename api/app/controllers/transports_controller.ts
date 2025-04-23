@@ -20,6 +20,7 @@ export default class TransportsController {
      * @summary Create a new transport
      * @description Creates a new transport entry in the database.
      * @responseBody 201 - {} // returns no content
+     * @requestBody {"name": "string", "co2_per_km": 0, "average_speed": 1} 
      */
     async create({ request, response }: HttpContext) {
         const body = request.body()

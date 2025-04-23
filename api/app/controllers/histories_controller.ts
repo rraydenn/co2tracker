@@ -54,7 +54,7 @@ export default class HistoriesController {
    * @show
    * @summary Get a specific travel history entry
    * @description Retrieves a specific travel history entry.
-    * @responseBody 200 - <History> // returns a specific travel history object
+   * @responseBody 200 - <History> // returns a specific travel history object
    */
   async show({ auth, params, response }: HttpContext) {
     const history = await History.query()
@@ -76,6 +76,7 @@ export default class HistoriesController {
    * @create
    * @summary Create a new travel history entry
    * @description Creates a new travel history entry.
+   * @requestBody {"transport_id": 1, "start_address_id": 1, "end_address_id": 2, "distance_km": 10, "co2_total": 10}
    */
   async create({ auth, request, response }: HttpContext) {
     const data = await request.validateUsing(createHistoryValidator)

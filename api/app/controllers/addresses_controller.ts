@@ -33,6 +33,7 @@ export default class AddressesController {
      * @summary Create a new address
      * @description Creates a new address.
      * @responseBody 201 - <Address> // returns model specification
+     * @requestBody {"full_address": "string", "latitude": 1, "longitude": 1}
      */
     async create({request, response}: HttpContext) {
         const address = await Address.create(request.body())
