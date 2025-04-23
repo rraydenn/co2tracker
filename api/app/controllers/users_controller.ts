@@ -3,7 +3,6 @@ import { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 import User from '#models/user'
 import { DateTime } from 'luxon'
-import History from '#models/history'
 
 export default class UsersController {
   /**
