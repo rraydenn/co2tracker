@@ -19,7 +19,7 @@ export default class TransportsController {
      * @create
      * @summary Create a new transport
      * @description Creates a new transport entry in the database.
-     * @responseBody 201 - <void> // returns no content
+     * @responseBody 201 - {} // returns no content
      */
     async create({ request, response }: HttpContext) {
         const body = request.body()
@@ -34,7 +34,7 @@ export default class TransportsController {
      * @delete
      * @summary Delete a transport
      * @description Deletes a specific transport by ID.
-     * @responseBody 204 - <void> // returns no content
+     * @responseBody 204 - {} // returns no content
      */
     async delete({ params, response }: HttpContext) {
         const transport = await Transport.find(params.id)
@@ -64,7 +64,6 @@ export default class TransportsController {
      * @summary Update a transport
      * @description Updates an existing transport by ID with provided data.
      * @responseBody 200 - <Transport> // returns model specification
-     * @responseBody 404 - <void> // returns no content
      */
     async put({ request, params, response }: HttpContext) {
         const transport = await Transport.find(params.id)

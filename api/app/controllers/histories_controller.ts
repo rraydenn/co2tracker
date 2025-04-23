@@ -9,7 +9,6 @@ export default class HistoriesController {
    * @summary Find an existing address
    * @description Searches for an existing address based on coordinates or full address.
    * @param {Object} addressData - The address data containing full address, latitude, and longitude.
-   * @returns {Promise<Address|null>} The found address or null if not found.
    */
   private async findExistingAddress(addressData: {
     full_address: string
