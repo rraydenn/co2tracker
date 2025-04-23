@@ -3,6 +3,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 import User from '#models/user'
 import { DateTime } from 'luxon'
+import History from '#models/history'
 
 export default class UsersController {
   /**
@@ -74,12 +75,29 @@ export default class UsersController {
    */
   async getMyInfo({ auth }: HttpContext) {
     const user = await auth.authenticate()
+
     if (!user) {
       return { message: 'User not found' }
     }
+
+    const result = await db.query()
+      .from('histories')
+      .where('user_id', user.id)
+      .select(
+        db.raw('SUM(co2_total) as total_co2'),
+        db.raw('SUM(distance_km) as total_distance_km')
+      )
+      .first();
+
+    const total_co2 = result.total_co2;
+    const total_distance_km = result.total_distance_km;
+
     return {
       full_name: user.fullName,
       created_at: user.createdAt,
+      distance_km: total_distance_km,
+      co2_total: total_co2,
     }
   }
+
 }
