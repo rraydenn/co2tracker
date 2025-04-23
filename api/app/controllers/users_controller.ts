@@ -3,7 +3,6 @@ import { HttpContext } from '@adonisjs/core/http'
 import hash from '@adonisjs/core/services/hash'
 import User from '#models/user'
 import { DateTime } from 'luxon'
-import History from '#models/history'
 
 export default class UsersController {
   /**
@@ -20,6 +19,7 @@ export default class UsersController {
    * @login
    * @summary Authenticate user
    * @description Authenticates a user and returns an access token.
+   * @requestBody {"email": "string", "password": "string"} 
    */
   async login({ request }: HttpContext) {
     const body = request.body()
@@ -54,6 +54,7 @@ export default class UsersController {
    * @summary Create a new user
    * @description Creates a new user and stores it in the database.
    * @responseBody 201 - <User> // returns no content
+   * @requestBody {"full_name": "string", "email": "exemple@exemple", "password": "string"} 
    */
   async create({ request, response }: HttpContext) {
     const body = request.body()
