@@ -19,6 +19,8 @@ const HistoryController = () => import('#controllers/histories_controller')
 
 router.post('/api/users', [UsersController, 'create'])
 
+router.get('/api/users', [UsersController, 'index'])
+
 router.get('/api/users/me', [UsersController, 'getMyInfo'])
 
 router.post('/api/login', [UsersController, 'login'])
