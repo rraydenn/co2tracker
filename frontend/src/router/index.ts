@@ -9,7 +9,7 @@ import CO2Tracker from "@/components/CO2Tracker.vue";
   
 
 const routes: Array<RouteRecordRaw> = [
-  { path: "/", name: 'Home', component: CO2Tracker },
+  { path: "/", name: 'Home', component: HomePage },
   { path: "/login", name: 'Login', component: LoginPage },
   { path: "/register", name: 'Register', component: RegisterPage },
   { 

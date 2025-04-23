@@ -69,8 +69,11 @@
   
   <script setup lang="ts">
   import { ref } from 'vue'
-  // import LocationSearch from './LocationSearch.vue'
-  import { getGeocodingResults } from '@/services/geocoding'
+  import L from 'leaflet'
+  //import { getGeocodingResults } from '@/services/geocoding'
+  import {useMapStore} from '@/stores/map'
+
+  const mapStore = useMapStore()
   
   const emit = defineEmits<{
     (e: 'submit-trip', payload: { from: string; to: string; mode: string }): void
@@ -201,7 +204,7 @@
 
       // Pass true to skip reverse geocoding
       const latlng = L.latLng(lat, lng);
-      addMarker(latlng, 'start', true);
+      mapStore.addStartMarker(latlng);
     };
 
     const selectArrivalResult = (result: AutocompleteResult) => {
@@ -218,7 +221,7 @@
 
       // Pass true to skip reverse geocoding
       const latlng = L.latLng(lat, lng);
-      addMarker(latlng, 'end', true);
+      mapStore.addEndMarker(latlng);
     };
 
     const onTravelFormSubmit = () => {
@@ -255,11 +258,7 @@
 
       console.log("### Debug: Trip calculated, showing results");
 
-      // Scroll to results
-      nextTick(() => {
-        console.log("### Debug: Scrolling to results section");
         document.getElementById('results')?.scrollIntoView({behavior: 'smooth'});
-      });
     };
 
     const onLoginFormSubmit = () => {
@@ -277,7 +276,6 @@
       console.log("### Debug: Registration submitted for username:", registerName.value);
       // Handle registration (stub)
       alert('Compte créé avec succès!');
-      isPopupVisible.value = false;
     };
 
   

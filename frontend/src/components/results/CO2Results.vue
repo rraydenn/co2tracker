@@ -1,4 +1,5 @@
 <template>
+  <h2>Résultats de l'empreinte carbone</h2>
     <div class="co2-consumption">
       <h3>Consommation de CO2</h3>
       <p><strong>CO2 émis : </strong>{{ calculatedCO2 }} g</p>

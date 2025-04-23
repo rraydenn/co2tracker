@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import L from 'leaflet';
+import { fetchRoute } from '../services/routing';
 
 export const useMapStore = defineStore('map', {
   state: () => ({
@@ -11,17 +12,62 @@ export const useMapStore = defineStore('map', {
   }),
 
   actions: {
-    initMap(container: HTMLElement) {
-      this.map = L.map(container).setView([48.8566, 2.3522], 7);
-      
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
+    initMap(container: HTMLElement, options: { center: L.LatLngTuple; zoom: number } = { center: [48.8566, 2.3522], zoom: 7 }) {
+      if (this.map) {
+        console.warn("Map is already initialized");
+        return;
+      }
+    
+      this.map = L.map(container, {
+        zoomAnimation: false,
+        fadeAnimation: false
+      }).setView(options.center, options.zoom);
+    
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?cache_buster=' + Date.now(), {
+        attribution: '&copy; OpenStreetMap contributors',
+        minZoom: 1,
+        maxZoom: 19,
+        errorTileUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'
       }).addTo(this.map as L.Map);
-      
+    
+      this.map.invalidateSize();
+    
       this.routeGroup = L.layerGroup().addTo(this.map as L.Map);
-      
+    
+      window.addEventListener('resize', () => {
+        this.map?.invalidateSize();
+      });
+    
+      this.map.on('click', async (e: L.LeafletMouseEvent) => {
+        console.log("### Debug: Map clicked at coordinates:", e.latlng);
+    
+        if (this.startMarker && this.endMarker) {
+          console.log("### Debug: Both markers exist, clearing map and route");
+    
+          this.routeGroup?.clearLayers();
+          this.startMarker?.remove();
+          this.endMarker?.remove();
+          this.startMarker = null;
+          this.endMarker = null;
+          console.log("### Debug: Markers removed");
+    
+          return;
+        }
+    
+        if (!this.startMarker) {
+          console.log("### Debug: Adding start marker");
+          this.addStartMarker(e.latlng);
+        } else if (!this.endMarker) {
+          console.log("### Debug: Adding end marker");
+          this.addEndMarker(e.latlng);
+          console.log("### Debug: Calculating route...");
+          await fetchRoute(this.startMarker.getLatLng(), e.latlng);
+        }
+      });
+    
       return this.map;
     },
+
     
     addStartMarker(latlng: L.LatLng) {
       if (this.map) {

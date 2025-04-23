@@ -1,6 +1,6 @@
 <template>
     <header>
-      <div class="site-title">CO2 Tracker Title V2</div>
+      <div class="site-title">CO2 Tracker V2</div>
     </header>
   </template>
   
