@@ -1,18 +1,17 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import InfoPage from "@/components/InfoPage.vue";
-import AccountPage from "@/components/AccountPage.vue";
-import Login from "../views/Login.vue";
-import Register from "../views/Register.vue";
-import Dashboard from "../views/Dashboard.vue";
+import InfoPage from "@/views/InfoPage.vue";
+import AccountPage from "@/views/AccountPage.vue";
 import { useAuthStore } from "@/stores/auth";
 import HomePage from "@/views/HomePage.vue";
+import LoginPage from "@/views/LoginPage.vue";
+import RegisterPage from "@/views/RegisterPage.vue";
 import CO2Tracker from "@/components/CO2Tracker.vue";
   
 
 const routes: Array<RouteRecordRaw> = [
-  { path: "/", name: 'Home', component: HomePage },
-  { path: "/login", name: 'Login', component: Login },
-  { path: "/register", name: 'Register', component: Register },
+  { path: "/", name: 'Home', component: CO2Tracker },
+  { path: "/login", name: 'Login', component: LoginPage },
+  { path: "/register", name: 'Register', component: RegisterPage },
   { 
     path: "/account",
     name: 'Account',
@@ -20,7 +19,6 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true },
   },
   { path: "/info", name: 'Info', component: InfoPage },
-  { path: "/dashboard", component: Dashboard }, //TODO: remove and replace with AccountPage
 ];
 
 const router = createRouter({

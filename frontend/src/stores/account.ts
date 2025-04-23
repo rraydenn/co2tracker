@@ -1,30 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { UserStats, Trip, UserData } from '@/types/user';
 
-// Types
-interface UserStats {
-  totalTrips: number;
-  totalCO2: string;
-  ranking: string;
-}
-
-interface Trip {
-  id: number;
-  departure: string;
-  arrival: string;
-  transport: string;
-  co2: string;
-  created_at: string;
-  user_id: number;
-}
-
-interface UserData {
-  id: number | null;
-  full_name: string | null;
-  email: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-}
 
 // Variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -73,7 +50,7 @@ export const useAccountStore = defineStore('account', {
               id: userResponse.data.id || null,
               full_name: userResponse.data.full_name || null,
               email: userResponse.data.email || null,
-              created_at: userResponse.data.create_at || null,
+              created_at: userResponse.data.created_at || null,
               updated_at: userResponse.data.updated_at || null
             };
             
