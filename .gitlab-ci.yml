@@ -104,4 +104,4 @@ deploy_frontend:
   script:
     - echo "Deploying Frontend to $HOST..."
     - echo "Copying Frontend build to $HOST..."
-    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/dist $DEPLOY_USER@$HOST:$DEPLOY_PATH/frontend
+    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/dist $DEPLOY_USER@$HOST:$DEPLOY_PATH/
