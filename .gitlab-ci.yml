@@ -48,8 +48,8 @@ build_api:
     - cd ./api
     - echo "$ENV_API_PROD_CONFIG" > .env.production
     - echo "Installing API dependencies"
-    - npm ci
-    - node ace build
+    - npm install
+    - npm run build
   artifacts:
     paths:
       - api/build/
@@ -67,7 +67,7 @@ build_frontend:
     - cd ./frontend
     - echo "$ENV_FRONT_PROD_CONFIG" > .env.production
     - echo "Installing frontend dependencies"
-    - npm ci
+    - npm install
     - npm run build
   artifacts:
     paths:
@@ -85,30 +85,23 @@ deploy_api:
   script:
     - echo "Deploying API to $HOST..."
     - echo "Copying API build to $HOST..."
-    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/build $DEPLOY_USER@$HOST:$DEPLOY_PATH/api
+    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/build $DEPLOY_USER@$HOST:$DEPLOY_PATH/
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
-      cd $DEPLOY_PATH/api &&
-      node ace migrations:fresh &&
+      cd $DEPLOY_PATH/build &&
       npm ci --omit=dev &&
+      node ace migration:fresh &&
+      cd .. &&
       pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js"
 
 ###########################
 # Deploy Front to server
 ###########################
-# deploy_frontend:
-#   stage: deploy
-#   needs: [build_frontend]
-#   only:
-#     - main
-#   script:
-#     - echo "Deploying Frontend to $HOST..."
-#     - echo "Copying Frontend build to $HOST..."
-#     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/dist $DEPLOY_USER@$HOST:$DEPLOY_PATH/frontend
-
-deploy_and_run_frontend:
+deploy_frontend:
   stage: deploy
+  needs: [build_frontend]
   only:
     - main
   script:
-    - mv maquette-front dist
-    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./dist $DEPLOY_USER@$HOST:$DEPLOY_PATH
+    - echo "Deploying Frontend to $HOST..."
+    - echo "Copying Frontend build to $HOST..."
+    - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./frontend/dist $DEPLOY_USER@$HOST:$DEPLOY_PATH/

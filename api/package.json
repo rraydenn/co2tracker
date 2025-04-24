@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "start": "node bin/server.js",
-    "build": "cp .env.production .env && node ace build",
+    "build": "cp .env.production .env && node ace build && mv .env build/",
     "dev": "cp .env.development .env && node ace serve --hmr",
     "test": "node ace test",
     "lint": "eslint .",
