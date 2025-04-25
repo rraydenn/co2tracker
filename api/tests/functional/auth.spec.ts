@@ -56,10 +56,10 @@ test.group('Auth flow (UsersController)', (group) => {
     client,
     assert,
   }) => {
-    const user = await User.create({
-      fullName: 'Infos User',
+    const user = await client.post('/api/users').json({
+      full_name: 'Infos User',
       email: 'info@example.com',
-      password: await hash.make('infopass'),
+      password: 'infopass',
     })
 
     const login = await client.post('/api/login').json({
