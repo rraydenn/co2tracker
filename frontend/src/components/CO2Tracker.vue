@@ -618,6 +618,7 @@ async function findNearestPort(startLat: number, startLng: number) {
     }
 
     const data = await response.json();
+    console.log("### Debug: Overpass API response received:", data);
     const ports = data.elements.map((port: { tags: { name?: string }; lat: number; lon: number }) => ({
       name: port.tags.name || 'Unknown Port',
       lat: port.lat,
@@ -880,6 +881,4 @@ async function findNearestPort(startLat: number, startLng: number) {
 </script>
 
 <style scoped>
-/* You can import your CSS or add scoped styles here */
-/* For a cleaner approach, consider moving styles to a separate CSS file */
 </style>

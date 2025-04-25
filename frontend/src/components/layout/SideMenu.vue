@@ -28,7 +28,7 @@
   import { ref } from 'vue';
   import TripForm from '../forms/TripForm.vue';
   
-  const isMenuVisible = ref(true);
+  const isMenuVisible = ref(false);
   const departure = ref('');
   const departureResults = ref([]);
   const arrival = ref('');

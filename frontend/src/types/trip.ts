@@ -37,3 +37,9 @@ export interface TripState {
   loading: boolean;
   error: string | null;
 }
+
+export interface Port {
+  name: string;
+  lat: number;
+  lon: number;
+}

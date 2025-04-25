@@ -27,3 +27,8 @@ export interface MapState {
   routeLayer: L.GeoJSON | L.LayerGroup | null;
   routeGroup: L.LayerGroup | null;
 }
+
+export interface ManualSelectionState {
+  departure: boolean;
+  arrival: boolean;
+}
