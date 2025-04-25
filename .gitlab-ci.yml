@@ -28,6 +28,8 @@ sonarqube-check:
     paths:
       - .sonar/cache
   script:
+    - echo "Installing API dependencies for adonisjs (SonarQube)"
+    - cd ./api && npm install
     - sonar-scanner
   allow_failure: true
   only:
