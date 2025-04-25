@@ -21,13 +21,16 @@ export default class UsersController {
    * @description Authenticates a user and returns an access token.
    * @requestBody {"email": "string", "password": "string"} 
    */
-  async login({ request }: HttpContext) {
+  async login({ request, response }: HttpContext) {
     const body = request.body()
     const email = body.email as string
     const password = body.password as string
 
     const user = await User.verifyCredentials(email, password)
-
+      .catch(() => {
+      return response.unauthorized({ error: 'Invalid credentials' })
+    })
+    
     if (user) {
       const token = await User.accessTokens.create(user)
       console.log('Logged in')
@@ -54,6 +57,7 @@ export default class UsersController {
    * @summary Create a new user
    * @description Creates a new user and stores it in the database.
    * @responseBody 201 - <User> // returns no content
+   * @responseBody 409 - {error: "Email already exists"} // if email already exists
    * @requestBody {"full_name": "string", "email": "exemple@exemple", "password": "string"} 
    */
   async create({ request, response }: HttpContext) {
