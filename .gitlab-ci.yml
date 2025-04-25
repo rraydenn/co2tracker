@@ -26,7 +26,7 @@ sonarqube-check:
     - cd api
     - npm install
   script:
-    - cd api
+    - cd ..
     - npx sonar-scanner
   cache:
     key: "${CI_JOB_NAME}"
