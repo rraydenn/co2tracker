@@ -8,6 +8,8 @@
     <main>
       <section id="map">
         <div id="map-container" ref="mapContainer"></div>
+        <button class="clear-map-btn" @click="clearMap">Clear</button>
+
       </section>
 
       <aside id="menu" :class="{ visible: isMenuVisible, hidden: !isMenuVisible }">
@@ -123,22 +125,10 @@
 
           <!-- Fun statistics -->
           <div class="fun-comparisons">
-            <h3>Statistiques comparatives amusantes WIP</h3>
-            <ul>
-              <li>Équivalent à un voyage Terre-Lune de <strong>10%</strong></li>
-              <li>CO2 de votre voyage est égal à <strong>200 bananes</strong> !</li>
-              <li>En termes de carburant, cela représente <strong>10 pleins de voiture</strong>.</li>
-            </ul>
+            <Comparisons v-if="isTripCalculated" />
           </div>
 
-          <!-- User ranking -->
-          <div class="user-ranking">
-            <h3>Classement parmi les utilisateurs WIP</h3>
-            <p><strong>Votre rang :</strong> <span id="user-rank">5ème sur 200</span></p>
-            <div class="ranking-bar">
-              <div class="user-bar" style="width: 25%"></div>
-            </div>
-          </div>
+        
         </div>
       </section>
     </main>
@@ -165,6 +155,12 @@ import { initializeMap, addMarker } from '@/services/map';
 import { searchLocation } from '@/services/geocoding';
 import { fetchOSRMRoute, calculateDirectDistance, findNearestPort } from '@/services/routing';
 import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
+import { resetMarkersState } from '@/services/map';
+import Comparisons from '@/components/results/Comparisons.vue';
+
+
+
+
 
 export default defineComponent({
   name: 'CO2Tracker',
@@ -249,6 +245,13 @@ export default defineComponent({
       arrival.value = '';
       routeLayer.value = null;
       routeGroup.value.clearLayers();
+      startMarker.value?.remove();
+      endMarker.value?.remove();
+      startMarker.value = null;
+      endMarker.value = null;
+
+      // Reinitialiser les valeurs start et end dans services/map.ts
+      resetMarkersState();
     };
 
     const onDepartureInput = () => {
@@ -542,10 +545,39 @@ export default defineComponent({
       selectDepartureResult,
       selectArrivalResult,
       onTravelFormSubmit,
+      clearMap, // Added clearMap to expose it to the template
     };
   }
 });
 </script>
 
 <style scoped>
+#map-container {
+  position: relative;
+  width: 100%;
+}
+
+.clear-map-btn {
+  position: absolute;
+  bottom: 40px;
+  left: 30px; /* Distance depuis la gauche du conteneur */
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  z-index: 1000; /* Assurez-vous que le bouton est au-dessus de la carte */
+}
+
+.clear-map-btn:hover {
+  background-color: #ff1a1a;
+}
 </style>

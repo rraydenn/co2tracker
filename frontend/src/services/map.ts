@@ -3,6 +3,20 @@ import { Ref } from 'vue';
 import { AutocompleteResult } from '@/types/map';
 import { reverseGeocode } from './geocoding';
 
+
+// start et end doivent être des variables globales pour pouvoir être modifiées par un fonction
+// accesible dans HomePage.vue tout en étant dans le scope de la fonction initializeMap 
+// (pour s'assurer que le premier ou dernier marqueurs sont bien ajoutés)
+
+
+let start = false;
+let end = false;
+export function resetMarkersState() {
+  start = false;
+  end = false;
+  console.log("### Debug: Markers state reset (start and end set to false)");
+}
+
 export function initializeMap(
   mapContainer: HTMLElement,
   routeGroup: L.LayerGroup,
@@ -24,40 +38,30 @@ export function initializeMap(
   console.log("### Debug: OSM tile layer added to map");
 
   routeGroup.addTo(map);
-  let start = true;
-  let startMarker: L.Marker | null = null;
-  let endMarker: L.Marker | null = null;
+
 
   map.on('click', async (e: L.LeafletMouseEvent) => {
     console.log("### Debug: Map clicked at coordinates:", e.latlng);
 
-    if (startMarker && endMarker) {
-      console.log("### Debug: Both markers exist, clearing map and route");
-      routeGroup.clearLayers();
-      console.log("### Debug: All routes removed");
-
-      startMarker.remove();
-      endMarker.remove();
-      startMarker = null;
-      endMarker = null;
-      console.log("### Debug: Markers removed");
-      
-      onClearMap();
+    if (end && start) {
+      console.log("### Debug: Both markers already exist, doing nothing.");
       return;
     }
 
     // Add start marker
-    if (start) {
+    if (!start) {
       console.log("### Debug: Adding start marker");
       onMarkerAdded(e.latlng, 'start');
 
       // Open menu
-      start = false;
+      start = true;
       openMenu();
     }
     // Add end marker and calculate route
-    else if (!endMarker) {
-      start = true;
+    else if (!end) {
+      end = true;
+      openMenu();
+
       console.log("### Debug: Adding end marker");
       onMarkerAdded(e.latlng, 'end');
 
@@ -68,6 +72,8 @@ export function initializeMap(
 
   return map;
 }
+
+
 
 export const greenIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
