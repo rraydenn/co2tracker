@@ -22,7 +22,7 @@ router.group(() => {
   router.post('/', [UsersController, 'create'])
   router.get('/', [UsersController, 'index'])
   router.get('/me', [UsersController, 'getMyInfo'])
-  router.get('ranking', [UsersController, 'getRanking'])
+  router.get('/ranking', [UsersController, 'getRanking'])
 })
   .prefix('/api/users')
 
