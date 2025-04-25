@@ -73,7 +73,7 @@ export default class UsersController {
     }
     const user: User = body as User
     user.password = await hash.make(user.password)
-
+    
     await db.table('users').insert(user)
     response.status(201)
   }
@@ -100,8 +100,8 @@ export default class UsersController {
       )
       .first();
 
-    const total_co2 = result.total_co2;
-    const total_distance_km = result.total_distance_km;
+    const total_co2 = result.total_co2 == null ? 0 : result.total_co2;
+    const total_distance_km = result.total_distance_km == null ? 0 : result.total_distance_km;
 
     return {
       full_name: user.fullName,
