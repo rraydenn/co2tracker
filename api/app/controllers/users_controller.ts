@@ -61,6 +61,12 @@ export default class UsersController {
     body.created_at = DateTime.now()
     body.updated_at = DateTime.now()
 
+    const existingUser = await db.query()
+    .from('users').where('email', body.email)
+    .first()
+    if (existingUser) {
+      return response.conflict({error: "Email already exists"})
+    }
     const user: User = body as User
     user.password = await hash.make(user.password)
 
