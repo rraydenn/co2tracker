@@ -17,27 +17,41 @@ const TransportsController = () => import('#controllers/transports_controller')
 const AddressController = () => import('#controllers/addresses_controller')
 const HistoryController = () => import('#controllers/histories_controller')
 
-router.post('/api/users', [UsersController, 'create'])
-router.get('/api/users', [UsersController, 'index'])
-router.get('/api/users/me', [UsersController, 'getMyInfo'])
-router.get('/api/users/ranking', [UsersController, 'getRanking'])
 
-router.post('/api/login', [UsersController, 'login'])
-router.post('/api/logout', [UsersController, 'logout'])
+router.group(() => {
+  router.post('/', [UsersController, 'create'])
+  router.get('/', [UsersController, 'index'])
+  router.get('/me', [UsersController, 'getMyInfo'])
+  router.get('ranking', [UsersController, 'getRanking'])
+})
+  .prefix('/api/users')
 
-router.get('/api/transports', [TransportsController, 'index'])
-router.post('/api/transports', [TransportsController, 'create'])
-router.delete('/api/transports/:id', [TransportsController, 'delete'])
-router.get('/api/transports/:id', [TransportsController, 'get'])
-router.put('/api/transports/:id', [TransportsController, 'put'])
-router.patch('/api/transports/:id', [TransportsController, 'patch'])
+router.group(() => {
+  router.post('/login', [UsersController, 'login'])
+  router.post('/logout', [UsersController, 'logout'])
+})
+  .prefix('/api')
+
+router.group(() => {
+  router.get('/', [TransportsController, 'index'])
+  router.post('/', [TransportsController, 'create'])
+  router.delete('/:id', [TransportsController, 'delete'])
+  router.get('/:id', [TransportsController, 'get'])
+  router.put('/:id', [TransportsController, 'put'])
+  router.patch('/:id', [TransportsController, 'patch'])
+})
+  .prefix('api/transports')
 
 
-router.get('/api/address', [AddressController, 'index'])
-router.post('/api/address', [AddressController, 'create'])
-router.delete('/api/address/:id', [AddressController, 'destroy'])
-router.get('/api/address/:id', [AddressController, 'show'])
-router.put('/api/address/:id', [AddressController, 'update'])
+router.group(() => {
+  router.get('/', [AddressController, 'index'])
+  router.post('/', [AddressController, 'create'])
+  router.delete('/:id', [AddressController, 'destroy'])
+  router.get('/:id', [AddressController, 'show'])
+  router.put('/:id', [AddressController, 'update'])
+})
+  .prefix('api/address')
+
 
 router.group(() => {
   router.get('/', [HistoryController, 'index'])
@@ -54,11 +68,11 @@ router.get('/api', async () => {
 })
 
 
-router.get("/swagger", async () => {
+router.get("/api/swagger", async () => {
   return AutoSwagger.default.docs(router.toJSON(), swagger);
 });
 
 
-router.get("/docs", async () => {
-  return AutoSwagger.default.ui("/swagger", swagger);
+router.get("/api/docs", async () => {
+  return AutoSwagger.default.ui("/api/swagger", swagger);
 });
