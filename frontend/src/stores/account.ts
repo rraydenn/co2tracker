@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import { UserStats, Trip, UserData } from '@/types/user';
+import { UserStats, UserData } from '@/types/user';
+import { Trip } from '@/types/trip';
 
 
 // Variables d'environnement

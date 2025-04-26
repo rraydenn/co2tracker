@@ -16,21 +16,8 @@ export interface CO2Result {
   co2BarWidth: number;
 }
 
-export interface SavedTrip {
-  id: number;
-  user_id: number;
-  departure: string;
-  arrival: string;
-  distance: number;
-  transport: string;
-  co2: number;
-  people: number;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface TripState {
-  trips: SavedTrip[];
+  trips: Trip[];
   currentTrip: TripData;
   isTripCalculated: boolean;
   calculatedCO2: CO2Result | null;
@@ -43,3 +30,48 @@ export interface Port {
   lat: number;
   lon: number;
 }
+
+export interface Address {
+  id: number;
+  full_address: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface Transport {
+  id: number;
+  name: string;
+  co_2_per_km: number;
+  average_speed: number;
+}
+
+export interface Trip {
+  id: number;
+  user_id: number;
+  transport_id: number;
+  start_address_id: number;
+  end_address_id: number;
+  distance_km: number;
+  co_2_total: number;
+  created_at: string;
+  transport?: Transport;
+  start_address?: Address;
+  end_address?: Address;
+}
+
+export interface TripStats {
+  totalTrips: number;
+  totalCO2: number;
+  totalDistance: number;
+  mostUsedTransport: string | null;
+  ranking: string;
+}
+
+export interface RankingItem {
+  rank: number;
+  full_name: string;
+  total_co2: number;
+  total_distance: number;
+}
+
+export type RankingData = RankingItem[];

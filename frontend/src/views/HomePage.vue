@@ -111,7 +111,7 @@
             <p><strong>Arrivée :</strong> {{ arrival }}</p>
             <p><strong>Mode de transport :</strong> {{ transport }}</p>
             <p><strong>Nombre de personnes :</strong> {{ people }}</p>
-            <p><strong>Distance totale WIP :</strong> {{ distance }}</p>
+            <p><strong>Distance totale WIP :</strong> {{ distance }} km</p>
           </div>
 
           <!-- CO2 consumption -->

@@ -12,16 +12,6 @@ export interface UserStats {
   ranking: string;
 }
 
-export interface Trip {
-  id: number;
-  departure: string;
-  arrival: string;
-  transport: string;
-  co2: string;
-  created_at: string;
-  user_id: number;
-}
-
 export interface AuthState {
   user: UserData | null;
   token: string | null;
