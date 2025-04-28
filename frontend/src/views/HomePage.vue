@@ -128,6 +128,14 @@
             <Comparisons v-if="isTripCalculated" />
           </div>
 
+          <!-- Temp -->
+          <div v-if="userToken">
+            <button @click="saveTrip" type="submit" class="btn-active">Enregistrer le trajet</button>  
+          </div>
+          <div v-else>
+            <p class="text-warning">Veuillez vous connecter pour enregistrer un trajet.</p>
+          </div>
+
         
         </div>
       </section>
@@ -135,7 +143,7 @@
 
     <footer>
       <div class="footer">
-        <p>CO2 Tracker - 2025 - PierreManoel - Ugo - XXXXXXX</p>
+        <p>CO2 Tracker - 2025 - PierreManoel - Ugo - Enzo - Karim - Corentin - Amine </p>
         <router-link to="/info">Informations du site</router-link>
       </div>
     </footer>
@@ -144,7 +152,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, nextTick, Ref } from 'vue';
-import L from 'leaflet';
+import L, { latLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Import types
@@ -156,6 +164,7 @@ import { searchLocation } from '@/services/geocoding';
 import { fetchRoute, calculateDirectDistance, findNearestPort } from '@/services/routing';
 import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
 import { resetMarkersState } from '@/services/map';
+import { useTripStore } from '@/stores/trip';
 import Comparisons from '@/components/results/Comparisons.vue';
 
 
@@ -180,6 +189,7 @@ export default defineComponent({
     const isMenuVisible = ref(false);
     const isPopupVisible = ref(false);
     const isTripCalculated = ref(false);
+    
 
     // Form inputs
     const departure = ref('');
@@ -198,7 +208,9 @@ export default defineComponent({
     const departureResults = ref<AutocompleteResult[]>([]);
     const arrivalResults = ref<AutocompleteResult[]>([]);
 
-
+    //History saving related
+    const userToken = localStorage.getItem('token') //if user connected : token else is null/not connected
+    const tripStore = useTripStore();
 
     // Timers for debouncing
     let departureTimer: number | null = null;
@@ -221,6 +233,7 @@ export default defineComponent({
       console.log("### Debug: Form validity checked:", valid);
       return valid;
     });
+
 
     const setManuallySelected = (type: 'start' | 'end', value: boolean) => {
       if (type === 'start') {
@@ -495,7 +508,65 @@ export default defineComponent({
       });
     };
 
+    const saveTrip = async () => {
 
+      //transport
+
+      //TODO: trouver une meilleur methode pour remplir la base de donnée pour le mode de transport (à faire qu'une seul fois)
+      //ici on va faire a chaque fois appel a la base de donnée pour voir s'il existe ou non le transport
+      //pas un pb a notre echelle mais c'est bof
+
+      let co2_per_km
+      let average_speed
+      
+      switch (transport.value) {
+        case 'voiture':
+          co2_per_km = 0.2 // kg/km 
+          average_speed = 50 // km/h
+          break
+        case 'avion':
+          co2_per_km = 0.3 
+          average_speed = 850
+          break
+        case 'bateau':
+          co2_per_km = 0.15
+          average_speed = 30
+          break
+        default:
+          co2_per_km = 0
+          average_speed = 0
+          break
+        }
+
+      const transportID = await tripStore.savingTransport(transport.value, co2_per_km , average_speed)
+
+      //ID position de depart      
+      let departureID = null
+      if (startMarker.value) {
+        const latlng = startMarker.value.getLatLng();
+        departureID = await tripStore.savingAddress( departure.value, latlng.lat , latlng.lng)
+      }
+
+      //ID position arrive
+      let arrivalID = null
+      if (endMarker.value) {
+        const latlng = endMarker.value.getLatLng();
+        arrivalID = await tripStore.savingAddress( arrival.value, latlng.lat , latlng.lng)
+      }
+
+      //Distance
+      const distanceInMk = parseFloat(distance.value);
+
+      //cout en co2
+      const co2Cost = calculateCO2Emissions(distanceInMk, transport.value, people.value);
+
+      if (userToken && departureID) { await tripStore.savingTripToHistory( userToken, transportID , departureID, arrivalID, distanceInMk, co2Cost) 
+        alert('✅ Trajet enregistré avec succès !');
+      }
+        else { console.warn('### Debug: Un ou plusieurs paramètres sont invalides. savingTrip non lancé.') }
+      
+     };
+    
 
     // Lifecycle hooks
     onMounted(() => {
@@ -527,6 +598,7 @@ export default defineComponent({
       isMenuVisible,
       isPopupVisible,
       isTripCalculated,
+      userToken,
       departure,
       arrival,
       people,
@@ -546,6 +618,7 @@ export default defineComponent({
       selectArrivalResult,
       onTravelFormSubmit,
       clearMap, // Added clearMap to expose it to the template
+      saveTrip,
     };
   }
 });
