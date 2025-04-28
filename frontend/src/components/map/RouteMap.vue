@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: utiliser dans la MainPage ou supprimer -->
   <div ref="mapContainer" class="map-container"></div>
 </template>
 

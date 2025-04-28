@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import L from 'leaflet';
-import { calculateCO2 } from '../services/co2';
-import { fetchRoute } from '../services/routing';
+import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
+import { fetchRoute } from '@/services/routing';
 
+//TODO: inutilisé
 export const useTripStore = defineStore('trip', {
   state: () => ({
     departure: '',
@@ -34,11 +35,12 @@ export const useTripStore = defineStore('trip', {
         this.distance = (distanceInMeters / 1000).toFixed(2);
         
         // Calculate CO2
-        const { totalCO2, co2BarWidth } = calculateCO2(
+        const totalCO2 = calculateCO2Emissions(
           parseFloat(this.distance),
           this.transport,
           this.people
         );
+        const co2BarWidth = calculateCO2BarWidth(totalCO2);
         
         this.calculatedCO2 = `${totalCO2.toFixed(2)} kg CO2`;
         this.co2BarWidth = co2BarWidth;

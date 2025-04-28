@@ -55,7 +55,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '@/stores/auth';
 import { onMounted, nextTick } from 'vue';
 import { gsap } from 'gsap';
 
@@ -74,7 +74,7 @@ export default defineComponent({
 			try {
 				await authStore.register(full_name.value, email.value, password.value);
 				setTransition('slide-left');
-				router.push('/login');
+				await router.push('/login');
 			} catch (error) {
 				console.error(error);
 			}
@@ -100,7 +100,7 @@ export default defineComponent({
 
 		onMounted(async () => {
 			await nextTick();
-			animateForm();
+			await animateForm();
 		});
 
 		return {

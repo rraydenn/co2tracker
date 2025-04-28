@@ -1,5 +1,6 @@
 <template>
-    <aside id="menu" :class="{ visible: isMenuVisible, hidden: !isMenuVisible }">
+  <!-- TODO: utiliser dans la MainPage ou supprimer -->
+  <aside id="menu" :class="{ visible: isMenuVisible, hidden: !isMenuVisible }">
       <!-- Section compte utilisateur -->
       <button id="menu-toggle" @click="toggleMenu">☰</button>
 

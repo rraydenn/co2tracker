@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: utiliser dans la MainPage ou supprimer -->
   <h2>Résultats de l'empreinte carbone</h2>
     <div class="co2-consumption">
       <h3>Consommation de CO2</h3>

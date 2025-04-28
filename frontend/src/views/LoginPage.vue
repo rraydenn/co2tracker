@@ -81,7 +81,7 @@
   
   onMounted(async () => {
     await nextTick();
-    animateForm();
+    await animateForm();
   });
   </script>
   
@@ -141,56 +141,9 @@
   .return-btn:hover {
     background: #3a7;
   }
+
   
-  /* Transition animations */
-  .slide-down-enter-active,
-  .slide-down-leave-active,
-  .slide-left-enter-active,
-  .slide-left-leave-active,
-  .slide-right-enter-active,
-  .slide-right-leave-active,
-  .slide-up-enter-active,
-  .slide-up-leave-active {
-    transition: transform 0.4s, opacity 0.4s;
-  }
+
   
-  .slide-down-enter-from {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-  
-  .slide-down-leave-to {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  
-  .slide-up-enter-from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  
-  .slide-up-leave-to {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-  
-  .slide-left-enter-from {
-    transform: translateX(50px);
-    opacity: 0;
-  }
-  
-  .slide-left-leave-to {
-    transform: translateX(-50px);
-    opacity: 0;
-  }
-  
-  .slide-right-enter-from {
-    transform: translateX(-50px);
-    opacity: 0;
-  }
-  
-  .slide-right-leave-to {
-    transform: translateX(50px);
-    opacity: 0;
-  }
+
   </style>

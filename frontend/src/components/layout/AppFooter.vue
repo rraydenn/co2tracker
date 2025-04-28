@@ -1,5 +1,6 @@
 <template>
-    <footer>
+  <!-- TODO: utiliser dans la MainPage ou supprimer -->
+  <footer>
       <div class="footer">
         <p>CO2 Tracker - 2025 - PierreManoel - Ugo - XXXXXXX</p>
         <router-link to="/info">Informations du site</router-link>

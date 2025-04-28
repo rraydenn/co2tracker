@@ -6,7 +6,7 @@ import { Trip } from '@/types/trip';
 
 // Variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const LOG_LEVEL = import.meta.env.VITE_LOG_LEVEL || 'info';
+const LOG_LEVEL =  'info';
 
 // Utils : gestion du niveau de log
 function log(

@@ -1,4 +1,5 @@
 <template>
+  <!-- TODO: supprimer -->
   <div class="co2-tracker">
     <header>
       <div class="site-title">CO2 Tracker Title V2</div>

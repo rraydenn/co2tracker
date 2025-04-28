@@ -5,8 +5,7 @@ import { useAuthStore } from "@/stores/auth";
 import HomePage from "@/views/HomePage.vue";
 import LoginPage from "@/views/LoginPage.vue";
 import RegisterPage from "@/views/RegisterPage.vue";
-import CO2Tracker from "@/components/CO2Tracker.vue";
-  
+
 
 const routes: Array<RouteRecordRaw> = [
   { path: "/", name: 'Home', component: HomePage },

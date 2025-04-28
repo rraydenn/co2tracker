@@ -8,6 +8,7 @@ export interface AutocompleteResult {
   length: number;
 }
 
+//TODO: supprimer si inutilisé
 export interface RouteData {
   features: Array<{
     geometry: any;
@@ -20,6 +21,7 @@ export interface RouteData {
   }>
 }
 
+//TODO: supprimer si inutilisé
 export interface MapState {
   map: L.Map | null;
   startMarker: L.Marker | null;

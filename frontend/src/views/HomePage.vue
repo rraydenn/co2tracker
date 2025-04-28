@@ -143,7 +143,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, nextTick, watch } from 'vue';
+import { defineComponent, ref, computed, onMounted, nextTick, Ref } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -153,7 +153,7 @@ import { AutocompleteResult, ManualSelectionState } from '@/types/map';
 // Import services
 import { initializeMap, addMarker } from '@/services/map';
 import { searchLocation } from '@/services/geocoding';
-import { fetchOSRMRoute, calculateDirectDistance, findNearestPort } from '@/services/routing';
+import { fetchRoute, calculateDirectDistance, findNearestPort } from '@/services/routing';
 import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
 import { resetMarkersState } from '@/services/map';
 import Comparisons from '@/components/results/Comparisons.vue';
@@ -312,8 +312,8 @@ export default defineComponent({
           map.value as L.Map, 
           latlng, 
           'start', 
-          startMarker, 
-          endMarker, 
+          startMarker as Ref<L.Marker | null>, 
+          endMarker as Ref<L.Marker | null>, 
           (addr) => departure.value = addr,
           (addr) => arrival.value = addr,
           setManuallySelected,
@@ -339,8 +339,8 @@ export default defineComponent({
           map.value as L.Map, 
           latlng, 
           'end', 
-          startMarker, 
-          endMarker, 
+          startMarker as Ref<L.Marker | null>, 
+          endMarker as Ref<L.Marker | null>, 
           (addr) => departure.value = addr,
           (addr) => arrival.value = addr,
           setManuallySelected,
@@ -357,8 +357,8 @@ export default defineComponent({
         map.value as L.Map, 
         latlng, 
         type, 
-        startMarker, 
-        endMarker, 
+        startMarker as Ref<L.Marker | null>, 
+        endMarker as Ref<L.Marker | null>, 
         (addr) => departure.value = addr,
         (addr) => arrival.value = addr,
         setManuallySelected,
@@ -418,7 +418,7 @@ export default defineComponent({
           }
           
           const port1LatLng = L.latLng(nearestPort1.lat, nearestPort1.lon);
-          const carRoute1 = await fetchOSRMRoute(startLatLng, port1LatLng, "driving-car", OSRM_BASE_URL, OSRM_API_KEY);
+          const carRoute1 = await fetchRoute(startLatLng, port1LatLng, "driving-car", OSRM_BASE_URL, OSRM_API_KEY);
           
           const carRouteLayer1 = L.geoJSON(carRoute1.features[0].geometry).addTo(map.value as L.Map);
           routeGroup.value.addLayer(carRouteLayer1);
@@ -431,7 +431,7 @@ export default defineComponent({
           }
           
           const port2LatLng = L.latLng(nearestPort2.lat, nearestPort2.lon);
-          const carRoute2 = await fetchOSRMRoute(endLatLng, port2LatLng, "driving-car", OSRM_BASE_URL, OSRM_API_KEY);
+          const carRoute2 = await fetchRoute(endLatLng, port2LatLng, "driving-car", OSRM_BASE_URL, OSRM_API_KEY);
           
           const carRouteLayer2 = L.geoJSON(carRoute2.features[0].geometry).addTo(map.value as L.Map);
           routeGroup.value.addLayer(carRouteLayer2);
@@ -459,7 +459,7 @@ export default defineComponent({
           // CAR MODE - Default
           console.log("### Debug: Using OSRM API for route calculation");
           
-          const routeData = await fetchOSRMRoute(startLatLng, endLatLng, "driving-car", OSRM_BASE_URL, OSRM_API_KEY);
+          const routeData = await fetchRoute(startLatLng, endLatLng, "driving-car", OSRM_BASE_URL, OSRM_API_KEY);
           console.log("### Debug: Route data received:", routeData);
           
           const newRoute = L.geoJSON(routeData.features[0].geometry);

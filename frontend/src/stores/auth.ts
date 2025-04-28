@@ -1,16 +1,10 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-
-// Types
-interface User {
-	full_name: string;
-	email: string;
-	password: string;
-}
+import { User } from '@/types/user';
 
 // Variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const LOG_LEVEL = import.meta.env.VITE_LOG_LEVEL || 'info';
+const LOG_LEVEL = 'info';
 
 // Utils : gestion du niveau de log
 function log(

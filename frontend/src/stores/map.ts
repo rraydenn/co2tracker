@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import L from 'leaflet';
-import { fetchRoute } from '../services/routing';
+import { fetchRoute } from '@/services/routing';
 
+//TODO: inutilisé (uniquement dans TripForm) -> fix l'erreur si utilisé, sinon supprimer
 export const useMapStore = defineStore('map', {
   state: () => ({
     map: null as L.Map | null,

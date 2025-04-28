@@ -1,7 +1,7 @@
 import L from 'leaflet';
 import { Port } from '@/types/trip';
 
-export async function fetchOSRMRoute(
+export async function fetchRoute(
   start: L.LatLng, 
   end: L.LatLng, 
   profile: string,

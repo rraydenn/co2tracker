@@ -1,5 +1,6 @@
 <template>
-    <div class="summary">
+  <!-- TODO: utiliser dans la MainPage ou supprimer -->
+  <div class="summary">
       <h3>Résumé de votre voyage</h3>
       <p><strong>Départ :</strong> {{ departure }}</p>
       <p><strong>Arrivée :</strong> {{ arrival }}</p>

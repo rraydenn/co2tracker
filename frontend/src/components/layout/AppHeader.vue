@@ -1,5 +1,6 @@
 <template>
-    <header>
+  <!-- TODO: utiliser dans la MainPage ou supprimer -->
+  <header>
       <div class="site-title">CO2 Tracker V2</div>
     </header>
   </template>

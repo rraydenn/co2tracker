@@ -1,5 +1,6 @@
 <template>
-    <div class="autocomplete-container">
+  <!-- TODO: utiliser dans la MainPage ou supprimer -->
+  <div class="autocomplete-container">
       <input
         :id="inputId"
         type="text"

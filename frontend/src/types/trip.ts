@@ -1,5 +1,6 @@
 import L from 'leaflet';
 
+//TODO: supprimer si inutilisé
 export interface TripData {
   departure: string;
   arrival: string;
@@ -10,12 +11,14 @@ export interface TripData {
   arrivalCoordinates: L.LatLng | null;
 }
 
+//TODO: supprimer si inutilisé
 export interface CO2Result {
   totalCO2: number;
   co2PerPerson: number;
   co2BarWidth: number;
 }
 
+//TODO: supprimer si inutilisé
 export interface TripState {
   trips: Trip[];
   currentTrip: TripData;

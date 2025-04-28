@@ -1,5 +1,5 @@
 <template>
- <!-- Formulaire de trajet -->
+ <!-- TODO: utiliser dans la MainPage ou supprimer -->
  <h2>Votre futur trajet</h2>
       <form id="travel-form" >
         <label for="departure">Départ:</label>

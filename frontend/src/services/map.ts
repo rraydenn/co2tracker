@@ -1,7 +1,6 @@
 import L from 'leaflet';
 import { Ref } from 'vue';
-import { AutocompleteResult } from '@/types/map';
-import { reverseGeocode } from './geocoding';
+import { reverseGeocode } from '@/services/geocoding';
 
 
 // start et end doivent être des variables globales pour pouvoir être modifiées par un fonction
@@ -74,7 +73,7 @@ export function initializeMap(
 }
 
 
-
+//TODO : utilisé que dans map.ts pour le moment, enlever le "export" ?
 export const greenIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -83,7 +82,7 @@ export const greenIcon = L.icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
-
+//TODO: same
 export const redIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
