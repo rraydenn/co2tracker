@@ -118,14 +118,12 @@
           <div class="co2-consumption">
             <h3>Consommation de CO2 WIP</h3>
             <p><strong>CO2 émis : </strong>{{ calculatedCO2 }}</p>
-            <div class="co2-bar">
-              <div class="filled-bar" :style="{ width: co2BarWidth + '%' }"></div>
-            </div>
           </div>
 
           <!-- Fun statistics -->
-          <div class="fun-comparisons">
-            <Comparisons v-if="isTripCalculated" />
+          <div class="fun-comparisons" v-if="isTripCalculated">
+          <h3>Comparaisons amusantes</h3> 
+            <Comparisons :co2number="parseFloat(calculatedCO2)" />
           </div>
 
           <!-- Temp -->
@@ -143,7 +141,7 @@
 
     <footer>
       <div class="footer">
-        <p>CO2 Tracker - 2025 - PierreManoel - Ugo - Enzo - Karim - Corentin - Amine </p>
+        <p>CO2 Tracker - 2025 - Pierre - Ugo - Enzo - Karim - Corentin - Amine </p>
         <router-link to="/info">Informations du site</router-link>
       </div>
     </footer>
@@ -165,14 +163,17 @@ import { fetchRoute, calculateDirectDistance, findNearestPort } from '@/services
 import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
 import { resetMarkersState } from '@/services/map';
 import { useTripStore } from '@/stores/trip';
-import Comparisons from '@/components/results/Comparisons.vue';
-
+import Comparisons from '../components/results/Comparisons.vue';
 
 
 
 
 export default defineComponent({
   name: 'CO2Tracker',
+
+  components: {
+    Comparisons
+  },
 
   setup() {
     console.log("### Debug: CO2Tracker component setup initialized");
