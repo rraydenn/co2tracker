@@ -106,25 +106,21 @@
         <div id="trip-calculated" class="trip-status" v-show="isTripCalculated">
           <h2>Résultats du voyage</h2>
           <div class="summary">
-            <h3>Résumé de votre voyage</h3>
+            <h3>Détails</h3>
             <p><strong>Départ :</strong> {{ departure }}</p>
             <p><strong>Arrivée :</strong> {{ arrival }}</p>
             <p><strong>Mode de transport :</strong> {{ transport }}</p>
             <p><strong>Nombre de personnes :</strong> {{ people }}</p>
-            <p><strong>Distance totale WIP :</strong> {{ distance }} km</p>
+            <p><strong>Distance totale :</strong> {{ distance }} km</p>
           </div>
 
           <!-- CO2 consumption -->
           <div class="co2-consumption">
-            <h3>Consommation de CO2 WIP</h3>
+            <h3>Consommation de CO2</h3>
             <p><strong>CO2 émis : </strong>{{ calculatedCO2 }}</p>
           </div>
 
-          <!-- Fun statistics -->
-          <div class="fun-comparisons" v-if="isTripCalculated">
-          <h3>Comparaisons amusantes</h3> 
-            <Comparisons :co2number="parseFloat(calculatedCO2)" />
-          </div>
+
 
           <!-- Temp -->
           <div v-if="userToken">
@@ -134,6 +130,10 @@
             <p class="text-warning">Veuillez vous connecter pour enregistrer un trajet.</p>
           </div>
 
+          <!-- Fun statistics -->
+          <div class="fun-comparisons" v-if="isTripCalculated">
+            <Comparisons :co2number="parseFloat(calculatedCO2)" />
+          </div>
         
         </div>
       </section>
@@ -169,14 +169,14 @@ import Comparisons from '../components/results/Comparisons.vue';
 
 
 export default defineComponent({
-  name: 'CO2Tracker',
+  name: 'HomePage',
 
   components: {
     Comparisons
   },
 
   setup() {
-    console.log("### Debug: CO2Tracker component setup initialized");
+    console.log("### Debug: HomePage component setup initialized");
 
     // Map-related state
     const mapContainer = ref<HTMLElement | null>(null);

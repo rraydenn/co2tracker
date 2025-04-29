@@ -1,25 +1,24 @@
 <template>
   <div class="comparisons">
-    <p>{{ co2number }}</p>
     <div class="chart-container">
-      <h3>Nombre de bougies allumées pendant 1h</h3>
       <canvas ref="candlesChart"></canvas>
     </div>
 
     <div class="chart-container">
-      <h3>Pourcentage de l'objectif climat utilisé</h3>
       <canvas ref="quotaChart"></canvas>
     </div>
 
     <div class="chart-container">
-      <h3>Nombre d'arbres nécessaires pour compenser</h3>
       <canvas ref="treesChart"></canvas>
     </div>
 
     <div class="chart-container">
-      <h3>Équivalent en plein de voitures</h3>
-      <canvas ref="castleChart"></canvas>
+      <canvas ref="vikingChart"></canvas>
     </div>
+
+    <div class="chart-container">
+    <canvas ref="luneChart" width="300" height="300"></canvas>
+  </div>
   </div>
 </template>
 
@@ -39,13 +38,21 @@ export default defineComponent({
   },
 
   setup(props) {
+
     const co2Emitted = props.co2number;
+    if (co2Emitted === undefined && co2Emitted === 0) {
+      console.error('co2Emitted is undefined');
+      co2Emitted = 666; // Set a default value if undefined
+    } else {
+      console.log('co2Emitted:', co2Emitted);
+    }
     
     // Références pour les graphiques
     const candlesChart = ref(null);
     const quotaChart = ref(null);
     const treesChart = ref(null);
-    const castleChart = ref(null);
+    const vikingChart = ref(null);
+    const luneChart = ref(null);
     
 
 
@@ -53,7 +60,10 @@ export default defineComponent({
   const CO2_per_candle = 0.01; // kg de CO2 par bougie/heure
   const CO2_per_tree_year = 20; // kg CO2 absorbé par arbre par an
   const CO2_quota_per_year = 2000; // kg CO2 par personne par an
-  const CO2_castle_per_hour = 0.2; // kg CO2 par heure de chateau gonflable
+  const CO2_per_cremationViking = 200; // kg CO2 par heure de château
+
+  // Hypothèse : 10 000 000 kg CO₂ pour un aller-retour Terre–Lune en fusée
+  const co2TerreLune = 10000000
 
 onMounted(() => {
   console.log('co2Emitted:', co2Emitted);
@@ -86,38 +96,54 @@ onMounted(() => {
       }]
     },
     options: {
-      plugins: { title: { display: true, text: 'Quota CO₂ Annuel Utilisé' } }
+      plugins: { title: { display: true, text: 'Quota CO₂ annuel moyen par personne utilisé' } }
     }
   });
 
   // Arbres nécessaires pour compenser
+  
   new Chart(treesChart.value, {
-    type: 'bubble',
+    type: 'bar',
     data: {
+      labels: ['Nombre d\'arbres necessaires pour compenser'], 
       datasets: [{
-        label: 'Arbres nécessaires',
-        data: [{ x: 5, y: 5, r: Math.min(30, Math.max(5, co2Emitted / CO2_per_tree_year * 5)) }],
-        backgroundColor: '#4caf50'
+        label: 'Nombre d\'arbres necessaires pour compenser',
+        data: [Math.round(co2Emitted / CO2_per_tree_year)],
+        backgroundColor: 'green'
       }]
     },
     options: {
-      plugins: { title: { display: true, text: 'Nombre d\'arbres pour compenser' } }
+      plugins: { title: { display: true, text: 'Nombre d\'arbres' } }
     }
   });
 
   // Heures de chateau gonflable
-  new Chart(castleChart.value, {
-    type: 'bar',
+  new Chart(vikingChart.value, {
+    type: 'pie',
     data: {
-      labels: ['Heures de chateau gonflable'],
+      labels: ['Votre trajet', 'Cremation Viking restant'],
       datasets: [{
-        label: 'Heures équivalentes',
-        data: [Math.round(co2Emitted / CO2_castle_per_hour)],
-        backgroundColor: '#ff66cc'
+        data: [co2Emitted, CO2_per_cremationViking - co2Emitted],
+        backgroundColor: ['blue', 'red']
       }]
     },
     options: {
-      plugins: { title: { display: true, text: 'Temps de chateau gonflable équivalent' } }
+      plugins: { title: { display: true, text: 'Pourcentage d\'une cremation viking' } }
+    }
+  });
+
+
+new Chart(luneChart.value, {
+    type: 'pie',
+    data: {
+      labels: ['Votre trajet', 'Voyage Terre–Lune restant'],
+      datasets: [{
+        data: [co2Emitted, co2TerreLune - co2Emitted],
+        backgroundColor: ['#f06292', '#e0e0e0']
+      }]
+    },
+    options: {
+      plugins: { title: { display: true, text: 'Pourcentage d\'un voyage Terre Lune' } }
     }
   });
 });
@@ -126,7 +152,8 @@ onMounted(() => {
       candlesChart,
       quotaChart,
       treesChart,
-      castleChart
+      vikingChart,
+      luneChart,
     }
   }
 })
@@ -143,5 +170,6 @@ onMounted(() => {
 
 .chart-container {
   width: 300px;
+  height: 300px;
 }
 </style>
