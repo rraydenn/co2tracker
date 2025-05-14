@@ -19,22 +19,21 @@ export default class UsersController {
    * @login
    * @summary Authenticate user
    * @description Authenticates a user and returns an access token.
-   * @requestBody {"email": "string", "password": "string"} 
+   * @requestBody {"email": "string", "password": "string"}
    */
   async login({ request, response }: HttpContext) {
     const body = request.body()
     const email = body.email as string
     const password = body.password as string
 
-    const user = await User.verifyCredentials(email, password)
-      .catch(() => {
+    const user = await User.verifyCredentials(email, password).catch(() => {
       return response.unauthorized({ error: 'Invalid credentials' })
     })
-    
+
     if (user) {
       const token = await User.accessTokens.create(user)
       console.log('Logged in')
-      
+
       return {
         type: 'bearer',
         token: token.value!.release(),
@@ -50,6 +49,7 @@ export default class UsersController {
   async logout({ auth }: HttpContext) {
     const user = await auth.authenticate()
     await User.accessTokens.delete(user, user.currentAccessToken.identifier)
+    console.log('Logged out')
   }
 
   /**
@@ -58,22 +58,20 @@ export default class UsersController {
    * @description Creates a new user and stores it in the database.
    * @responseBody 201 - <User> // returns no content
    * @responseBody 409 - {error: "Email already exists"} // if email already exists
-   * @requestBody {"full_name": "string", "email": "exemple@exemple", "password": "string"} 
+   * @requestBody {"full_name": "string", "email": "exemple@exemple", "password": "string"}
    */
   async create({ request, response }: HttpContext) {
     const body = request.body()
     body.created_at = DateTime.now()
     body.updated_at = DateTime.now()
 
-    const existingUser = await db.query()
-    .from('users').where('email', body.email)
-    .first()
+    const existingUser = await db.query().from('users').where('email', body.email).first()
     if (existingUser) {
-      return response.conflict({error: "Email already exists"})
+      return response.conflict({ error: 'Email already exists' })
     }
     const user: User = body as User
     user.password = await hash.make(user.password)
-    
+
     await db.table('users').insert(user)
     response.status(201)
   }
@@ -91,17 +89,18 @@ export default class UsersController {
       return { message: 'User not found' }
     }
 
-    const result = await db.query()
+    const result = await db
+      .query()
       .from('histories')
       .where('user_id', user.id)
       .select(
         db.raw('SUM(co2_total) as total_co2'),
         db.raw('SUM(distance_km) as total_distance_km')
       )
-      .first();
+      .first()
 
-    const total_co2 = result.total_co2 == null ? 0 : result.total_co2;
-    const total_distance_km = result.total_distance_km == null ? 0 : result.total_distance_km;
+    const total_co2 = result.total_co2 == null ? 0 : result.total_co2
+    const total_distance_km = result.total_distance_km == null ? 0 : result.total_distance_km
 
     return {
       full_name: user.fullName,
@@ -122,16 +121,16 @@ export default class UsersController {
         db.raw('COALESCE(SUM(histories.distance_km), 0) as total_distance')
       )
       .groupBy('users.id', 'users.full_name')
-      .orderBy('total_distance', 'asc').limit(100)
+      .orderBy('total_distance', 'asc')
+      .limit(100)
 
     const rankedUsers = ranking.map((user, index) => ({
       rank: index + 1,
       full_name: user.full_name,
       total_co2: Number(user.total_co2),
-      total_distance: Number(user.total_distance)
+      total_distance: Number(user.total_distance),
     }))
 
     return response.ok(rankedUsers)
   }
-
 }
