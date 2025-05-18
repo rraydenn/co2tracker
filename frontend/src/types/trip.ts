@@ -36,7 +36,7 @@ export interface Port {
 
 export interface Address {
   id: number;
-  full_address: string;
+  fullAddress: string;
   latitude: number;
   longitude: number;
 }
@@ -44,22 +44,21 @@ export interface Address {
 export interface Transport {
   id: number;
   name: string;
-  co_2_per_km: number;
-  average_speed: number;
+  co2PerKm: number;
+  averageSpeed: number;
 }
 
 export interface Trip {
   id: number;
-  user_id: number;
-  transport_id: number;
-  start_address_id: number;
-  end_address_id: number;
-  distance_km: number;
-  co_2_total: number;
-  created_at: string;
+  userId: number;
+  transportId: number;
+  startAddressId: number;
+  endAddressId: number;
+  distanceKm: number;
+  co2Total: number;
   transport?: Transport;
-  start_address?: Address;
-  end_address?: Address;
+  startAddress?: Address;
+  endAddress?: Address;
 }
 
 export interface TripStats {

@@ -14,18 +14,24 @@
       <div v-else class="trips-list">
         <div v-for="trip in trips" :key="trip.id" class="trip-item">
           <div class="trip-header">
-            <div class="trip-route">{{ trip.start_address }} → {{ trip.end_address }}</div>
-            <div class="trip-date">{{ formatDate(trip.created_at) }}</div>
+            <div class="trip-route"> </div> 
+            <span class="trip-route">DEPART : </span> {{ trip.startAddress?.fullAddress}} <br>
+            <span class="trip-route">ARRIVEE : </span> {{ trip.endAddress?.fullAddress}} <br>
           </div>
           <div class="trip-info">
             <div class="transport-mode">
-              <span class="label">Mode:</span> {{ trip.transport }}
-            </div>
-            <div class="co2-amount">
-              <span class="label">CO2:</span> {{ trip.co_2_total }}
-            </div>
+               Mode de Transport :
+               <span class="valeur"> {{ trip.transport?.name }} </span>
+            </div> <br>
+            <div class="co2-amount"> 
+              CO2 : 
+              <span class="valeur"> {{ trip.co2Total }} </span>
+              kg/km
+            </div> <br>
             <div class="distance">
-              <span class="label">Distance:</span> {{ trip.distance_km }} km
+              Distance:
+              <span class="valeur"> {{ trip.distanceKm}} </span>
+              km  
           </div>
           </div>
         </div>
@@ -159,8 +165,7 @@ h2 {
 }
 
 .trip-header {
-  display: flex;
-  justify-content: space-between;
+  
   margin-bottom: 8px;
 }
 
@@ -175,21 +180,30 @@ h2 {
 }
 
 .trip-info {
-  display: flex;
+  color: #45DA12;
   justify-content: space-between;
 }
 
-.label {
+.transport-mode {
   font-weight: bold;
-  color: #666;
+  color: #2D7A7A;
+  
+}
+
+.valeur{
+  font-weight: bold;
+  color: #60D624;
+  
 }
 
 .co2-amount {
   color: #4a8;
   font-weight: bold;
+  
 }
 
 .distance {
   color: #48a;
+  
 }
 </style>

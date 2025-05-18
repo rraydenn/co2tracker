@@ -69,17 +69,17 @@ export default defineComponent({
       }
       
       // Calculate total CO2
-      const totalCO2 = trips.value.reduce((sum, trip) => sum + trip.co_2_total, 0);
+      const totalCO2 = trips.value.reduce((sum, trip) => sum + trip.co2Total, 0);
       console.log("### Debug: CO2Stats - Total CO2 calculated:", totalCO2);
       
       // Calculate total distance
-      const totalDistance = trips.value.reduce((sum, trip) => sum + trip.distance_km, 0);
+      const totalDistance = trips.value.reduce((sum, trip) => sum + trip.distanceKm, 0);
       console.log("### Debug: CO2Stats - Total distance calculated:", totalDistance);
       
       // Find most used transport
       const transportCounts: Record<string, number> = {};
       trips.value.forEach(trip => {
-        const transportName = trip.transport?.name || `Transport ${trip.transport_id}`;
+        const transportName = trip.transport?.name || `Transport ${trip.transportId}`;
         transportCounts[transportName] = (transportCounts[transportName] || 0) + 1;
       });
       
