@@ -26,6 +26,30 @@ setup-deps:
       - frontend/node_modules/
     expire_in: 30 min
 
+
+##########################
+# Test API + Coverage
+##########################
+test_api:
+  stage: build
+  needs: [setup-deps]
+  script:
+    - echo "Injecting test env config"
+    - cd ./api
+    - echo "$ENV_API_TEST_CONFIG" > .env.test
+    # Compile le projet avant les tests
+    - npm run build
+    - node ace test
+  artifacts:
+    paths:
+      - api/coverage/
+    expire_in: 1 hour
+  only:
+    - main
+    - develop
+    
+
+
 ##########################
 # SonarQube Analysis
 ##########################
