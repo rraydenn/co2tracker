@@ -31,6 +31,7 @@ test.group('Transport flow (TransportsController)', (group) => {
     response.assertStatus(200)
     const transports = response.body() as Array<{ name: string }>
     const names = transports.map((t) => t.name)
+
     assert.includeMembers(names, ['Train', 'Bike'])
 
   })
