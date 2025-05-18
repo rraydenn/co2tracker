@@ -15,6 +15,7 @@
         <div v-for="trip in trips" :key="trip.id" class="trip-item">
           <div class="trip-header">
             <div class="trip-route"> </div> 
+            <div class="trip-date">{{ formatDate(trip.createdAt) }}</div>
             <span class="trip-route">DEPART : </span> {{ trip.startAddress?.fullAddress}} <br>
             <span class="trip-route">ARRIVEE : </span> {{ trip.endAddress?.fullAddress}} <br>
           </div>
