@@ -29,10 +29,8 @@ test.group('Transport flow (TransportsController)', (group) => {
 
     const response = await client.get('/api/transports')
     response.assertStatus(200)
-    const transports = response.body() as Array<{ name: string }>
-    const names = transports.map((t) => t.name)
+    const names = response.body().map((t) => t.name)
     assert.includeMembers(names, ['Train', 'Bike'])
-
   })
 
   test('A specific transport can be retrieved via /api/transports/:id', async ({
