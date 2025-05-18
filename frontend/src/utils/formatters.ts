@@ -35,13 +35,3 @@ export function formatCO2(value: number | string): string {
   
   return `${numValue.toFixed(2)} kg`;
 };
-
-//TODO: supprimer si inutilisé
-/**
- * Format distance with unit
- * @param value Distance in km
- * @returns Formatted distance string
- */
-export const formatDistance = (value: number): string => {
-  return `${value.toFixed(2)} km`;
-};

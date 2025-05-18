@@ -8,28 +8,6 @@ export interface AutocompleteResult {
   length: number;
 }
 
-//TODO: supprimer si inutilisé
-export interface RouteData {
-  features: Array<{
-    geometry: any;
-    properties: {
-      summary: {
-        distance: number;
-        duration: number;
-      }
-    }
-  }>
-}
-
-//TODO: supprimer si inutilisé
-export interface MapState {
-  map: L.Map | null;
-  startMarker: L.Marker | null;
-  endMarker: L.Marker | null;
-  routeLayer: L.GeoJSON | L.LayerGroup | null;
-  routeGroup: L.LayerGroup | null;
-}
-
 export interface ManualSelectionState {
   departure: boolean;
   arrival: boolean;

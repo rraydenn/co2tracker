@@ -17,24 +17,3 @@ export interface UserStats {
   totalCO2: string;
   ranking: string;
 }
-
-//TODO: supprimer si inutilisé
-export interface AuthState {
-  user: UserData | null;
-  token: string | null;
-  loading: boolean;
-  error: string | null;
-}
-
-//TODO: supprimer si inutilisé
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-//TODO: supprimer si inutilisé
-export interface RegisterCredentials {
-  full_name: string;
-  email: string;
-  password: string;
-}
