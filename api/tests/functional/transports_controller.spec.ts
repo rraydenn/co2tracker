@@ -29,7 +29,7 @@ test.group('Transport flow (TransportsController)', (group) => {
 
     const response = await client.get('/api/transports')
     response.assertStatus(200)
-    const names = response.body().map((t) => t.name)
+    const names = response.body().map((t: Transport) => t.name)
     assert.includeMembers(names, ['Train', 'Bike'])
   })
 
