@@ -68,8 +68,8 @@ export function searchLocation(
     onSuccess([]);
     return;
   }
-
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+  const NOMINATIM_BASE_URL = import.meta.env.VITE_NOMINATIM_BASE_URL;
+  const url = `${NOMINATIM_BASE_URL}/search?format=json&q=${encodeURIComponent(query)}`;
   console.log("### Debug: Sending search request to Nominatim:", url);
 
   fetch(url)

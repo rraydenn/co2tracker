@@ -39,7 +39,8 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
 }
 
 export async function findNearestPort(startLat: number, startLng: number): Promise<Port | null> {
-  const overpassUrl = 'https://overpass-api.de/api/interpreter';
+  const OVERPASS_BASE_URL = import.meta.env.VITE_OVERPASS_BASE_URL;
+  const overpassUrl = `${OVERPASS_BASE_URL}/api/interpreter`;
   const query = `
     [out:json];
     node["seamark:type"="harbour"](around:50000,${startLat},${startLng});
