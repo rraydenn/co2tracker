@@ -22,7 +22,7 @@ test.group('Auth flow (UsersController)', (group) => {
   })
 
   test('User can login with correct credentials', async ({ client, assert }) => {
-    const user = await client.post('/api/users').json({
+    await client.post('/api/users').json({ // const user = 
       full_name: 'Marie Dupont',
       email: 'marie@example.com',
       password: 'password123',
@@ -56,7 +56,7 @@ test.group('Auth flow (UsersController)', (group) => {
     client,
     assert,
   }) => {
-    const user = await client.post('/api/users').json({
+    await client.post('/api/users').json({ // const user = 
       full_name: 'Infos User',
       email: 'info@example.com',
       password: 'infopass',
@@ -82,7 +82,7 @@ test.group('Auth flow (UsersController)', (group) => {
   })
 
   test('User can logout via /api/logout and token is revoked', async ({ client }) => {
-    const user = await client.post('/api/users').json({
+    await client.post('/api/users').json({ //const user = 
       full_name: 'Logout',
       email: 'logout@example.com',
       password: 'logoutpass',
