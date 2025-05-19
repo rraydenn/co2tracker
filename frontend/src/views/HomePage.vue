@@ -5,6 +5,31 @@
       <button id="menu-toggle" @click="toggleMenu">☰</button>
     </header>
 
+    <div id="tutorial-popup" v-if="showTutorial" class="popup">
+      <div class="popup-content">
+        <button id="close-popup" @click="closeTutorial">×</button>
+        <h2>Bienvenue sur CO2 Tracker!</h2>
+        
+        <div class="tutorial-content">
+          <h3>Comment ça marche</h3>
+          <p>
+            1. Entrez votre point de départ et d'arrivée<br>
+            2. Sélectionnez votre mode de transport<br>
+            3. Indiquez le nombre de personnes<br>
+            4. Obtenez une estimation de votre empreinte CO2
+          </p>
+          
+          <h3>À propos de CO2 Tracker</h3>
+          <p>
+            CO2 Tracker est une application permettant de calculer et de visualiser
+            l'empreinte carbone de vos déplacements.
+          </p>
+          
+          <button class="tutorial-btn" @click="closeTutorial">Commencer</button>
+        </div>
+      </div>
+    </div>
+
     <main>
       <section id="map">
         <div id="map-container" ref="mapContainer"></div>
@@ -191,6 +216,7 @@ export default defineComponent({
     const isMenuVisible = ref(false);
     const isPopupVisible = ref(false);
     const isTripCalculated = ref(false);
+    const showTutorial = ref(false);
     
 
     // Form inputs
@@ -574,6 +600,12 @@ export default defineComponent({
         else { console.warn('### Debug: Un ou plusieurs paramètres sont invalides. savingTrip non lancé.') }
       
      };
+
+     const closeTutorial= () => {
+      showTutorial.value = false;
+      localStorage.setItem('tutorialShown', 'true');
+      log("Tutorial closed", 'debug');
+     }
     
 
     // Lifecycle hooks
@@ -594,6 +626,12 @@ export default defineComponent({
             log("Map initialized, invalidating size", 'debug');
             
             map.value?.invalidateSize();
+          }, 500);
+        }
+        const tutorialShown = localStorage.getItem('tutorialShown');
+        if (!tutorialShown) {
+          setTimeout(() => {
+            showTutorial.value = true;
           }, 500);
         }
       });
@@ -647,6 +685,8 @@ export default defineComponent({
       onTravelFormSubmit,
       clearMap, // Added clearMap to expose it to the template
       saveTrip,
+      showTutorial,
+      closeTutorial,
     };
   }
 });
@@ -680,5 +720,41 @@ export default defineComponent({
 
 .clear-map-btn:hover {
   background-color: #ff1a1a;
+}
+
+/* Tutorial popup styles */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Higher than other elements */
+}
+
+.tutorial-content {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.tutorial-btn {
+  background: #4a8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background 0.3s ease;
+}
+
+.tutorial-btn:hover {
+  background: #3a7;
+  transform: scale(1.05);
 }
 </style>
