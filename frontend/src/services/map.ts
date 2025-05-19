@@ -125,10 +125,10 @@ export function addMarker(
           reverseGeocode(newPos, (address: string) => setDeparture(address));
         }
       });
-      if (endMarker.value) calculateRoute();
 
       log("Start marker added", 'debug');
     }
+    if (endMarker.value) calculateRoute();
   } else {
     if (endMarker.value) {
       log("Updating existing end marker", 'debug');
@@ -146,9 +146,9 @@ export function addMarker(
           reverseGeocode(newPos, (address: string) => setArrival(address));
         }
       });
-      if (startMarker.value) calculateRoute();
       log("End marker added", 'debug');
     }
+    if (startMarker.value) calculateRoute();
   }
 
   if (!skipReverseGeocode) {

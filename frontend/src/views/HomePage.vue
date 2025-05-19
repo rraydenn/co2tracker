@@ -429,6 +429,14 @@ export default defineComponent({
       log(`Route coordinates - Start: ${startLatLng}, End: ${endLatLng}`, 'debug');
 
       // Clear existing route if it exists
+      log("Checking for existing route layer", 'debug', { routeGroup: routeGroup.value, map: map.value });
+
+      // Clear existing routes from routeGroup
+      if (routeGroup.value) {
+        log("Clearing existing route layers from routeGroup", 'debug');
+        routeGroup.value.clearLayers();
+      }
+
       if (routeLayer.value && map.value) {
         log("Removing existing route layer", 'debug');
         routeLayer.value.remove();
