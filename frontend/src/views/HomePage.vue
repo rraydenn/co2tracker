@@ -149,7 +149,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, nextTick, Ref } from 'vue';
+import { defineComponent, ref, computed, onMounted, nextTick, Ref, onUnmounted } from 'vue';
 import L, { latLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -256,6 +256,7 @@ export default defineComponent({
     }
 
     const clearMap = () => {
+      isTripCalculated.value = false;
       departure.value = '';
       arrival.value = '';
       routeLayer.value = null;
@@ -267,6 +268,11 @@ export default defineComponent({
 
       // Reinitialiser les valeurs start et end dans services/map.ts
       resetMarkersState();
+
+      nextTick(() => {
+        document.body.scrollIntoView({ behavior: 'smooth' });
+      });
+      log("Map cleared", 'debug');
     };
 
     const onDepartureInput = () => {
@@ -591,6 +597,26 @@ export default defineComponent({
           }, 500);
         }
       });
+    });
+
+    onUnmounted(() => {
+      if (startMarker.value) {
+        startMarker.value.remove();
+        startMarker.value = null;
+      }
+      if (endMarker.value) {
+        endMarker.value.remove();
+        endMarker.value = null;
+      }
+      if (routeLayer.value) {
+        routeLayer.value.remove();
+        routeLayer.value = null;
+      }
+      if (routeGroup.value) {
+        routeGroup.value.clearLayers();
+      }
+      resetMarkersState();
+      log("HomePage component unmounted, map and markers cleaned up", 'debug');
     });
 
     return {
