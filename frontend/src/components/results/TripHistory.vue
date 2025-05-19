@@ -43,6 +43,7 @@
   <script lang="ts">
   import { defineComponent, ref, onMounted } from 'vue';
   import { formatDate, formatCO2 } from '@/utils/formatters';
+  import { log } from '@/utils/logger';
   import { Trip } from '@/types/trip';
   import { useAuthStore } from '@/stores/auth';
   
@@ -50,7 +51,7 @@
     name: 'TripHistory',
     
     setup() {
-      console.log("### Debug: TripHistory component initializing");
+      log("TripHistory - Initializing component", 'debug');
       const trips = ref<Trip[]>([]);
       const loading = ref(true);
       const error = ref('');
@@ -58,12 +59,12 @@
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       
       const fetchTrips = async () => {
-        console.log("### Debug: TripHistory - Fetching trips");
+        log("TripHistory - Fetching trips", 'debug');
         loading.value = true;
         error.value = '';
         
         try {
-          console.log("### Debug: TripHistory - Making API request with token:", authStore.token ? "[Token Available]" : "[No Token]");
+          log("TripHistory - Making API request with token", 'debug', authStore.token ? "[Token Available]" : "[No Token]");
           const response = await fetch(`${API_BASE_URL}/users/history`, {
             headers: {
               'Authorization': `Bearer ${authStore.token}`,
@@ -71,7 +72,7 @@
             }
           });
           
-          console.log("### Debug: TripHistory - API response status:", response.status);
+          log("TripHistory - API response status", 'debug', response.status);
 
           
           if (!response.ok) {
@@ -79,24 +80,24 @@
           }
           
           const data = await response.json();
-          console.log(`### Debug: TripHistory - Received ${data.length} trips:`, data);
+          log(`TripHistory - Received ${data.length} trips`, 'debug', data);
           trips.value = data;
         } catch (err) {
           console.error('### Debug: TripHistory - Failed to fetch trips:', err);
           error.value = err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des trajets';
         } finally {
-          console.log("### Debug: TripHistory - Fetch operation completed");
+          log("TripHistory - Fetch operation completed", 'debug');
           loading.value = false;
         }
       };
       
       onMounted(() => {
-        console.log("### Debug: TripHistory - Component mounted");
+        log("TripHistory - Component mounted", 'debug');
         if (authStore.token) {
-          console.log("### Debug: TripHistory - User is authenticated, fetching trips");
+          log("TripHistory - User is authenticated, fetching trips", 'debug');
           fetchTrips();
         } else {
-          console.log("### Debug: TripHistory - User not authenticated, showing error");
+          log("TripHistory - User not authenticated, showing error", 'debug');
           error.value = 'Veuillez vous connecter pour voir votre historique';
           loading.value = false;
         }

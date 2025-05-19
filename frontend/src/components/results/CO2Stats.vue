@@ -42,12 +42,13 @@ import { defineComponent, ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { formatCO2 } from '@/utils/formatters';
 import { Trip, TripStats, RankingData } from '@/types/trip';
+import { log } from '@/utils/logger';
 
 export default defineComponent({
   name: 'CO2Stats',
   
   setup() {
-    console.log("### Debug: CO2Stats component initializing");
+    log("CO2Stats component initializing", 'debug');
     const trips = ref<Trip[]>([]);
     const ranking = ref<RankingData | null>(null);
     const loading = ref(true);
@@ -56,9 +57,9 @@ export default defineComponent({
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     
     const stats = computed<TripStats>(() => {
-      console.log("### Debug: CO2Stats - Computing statistics from", trips.value.length, "trips");
+      log(`CO2Stats - Computing statistics from ${trips.value.length} trips`, 'debug');
       if (trips.value.length === 0) {
-        console.log("### Debug: CO2Stats - No trips available, returning empty stats");
+        log("CO2Stats - No trips available, returning empty stats", 'debug');
         return {
           totalTrips: 0,
           totalCO2: 0,
@@ -70,11 +71,11 @@ export default defineComponent({
       
       // Calculate total CO2
       const totalCO2 = trips.value.reduce((sum, trip) => sum + trip.co2Total, 0);
-      console.log("### Debug: CO2Stats - Total CO2 calculated:", totalCO2);
+      log(`CO2Stats - Total CO2 calculated: ${totalCO2} kg`, 'debug');
       
       // Calculate total distance
       const totalDistance = trips.value.reduce((sum, trip) => sum + trip.distanceKm, 0);
-      console.log("### Debug: CO2Stats - Total distance calculated:", totalDistance);
+      log(`CO2Stats - Total distance calculated: ${totalDistance} km`, 'debug');
       
       // Find most used transport
       const transportCounts: Record<string, number> = {};
@@ -93,8 +94,8 @@ export default defineComponent({
         }
       });
       
-      console.log("### Debug: CO2Stats - Most used transport:", mostUsedTransport, "with count:", maxCount);
-      console.log("### Debug: CO2Stats - Ranking data:", ranking.value);
+      log(`CO2Stats - Most used transport: ${mostUsedTransport} with count: ${maxCount}`, 'debug');
+      log(`CO2Stats - Ranking data: ${ranking.value}`, 'debug');
       
       return {
         totalTrips: trips.value.length,
@@ -106,9 +107,10 @@ export default defineComponent({
     });
     
     const fetchTrips = async () => {
-      console.log("### Debug: CO2Stats - Fetching trips for statistics");
+      log("CO2Stats - Fetching trips for statistics", 'debug');
       try {
-        console.log("### Debug: CO2Stats - Making API request with token:", authStore.token ? "[Token Available]" : "[No Token]");
+        log("CO2Stats - Making API request with token:", "debug", authStore.token ? "[Token Available]" : "[No Token]");
+
         const response = await fetch(`${API_BASE_URL}/users/history`, {
           headers: {
             'Authorization': `Bearer ${authStore.token}`,
@@ -116,15 +118,15 @@ export default defineComponent({
           }
         });
         
-        console.log("### Debug: CO2Stats - API response status:", response.status);
+        log("CO2Stats - API response status:", 'debug', response.status);
         
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
-        console.log(`### Debug: CO2Stats - Received ${data.length} trips for stats calculation`);
-        console.log("### Debug: CO2Stats - Trips data:", data);
+        log(`CO2Stats - Received ${data.length} trips for stats calculation`, 'debug');
+        log("CO2Stats - Trips data:", 'debug', data);
         trips.value = data;
       } catch (err) {
         console.error('### Debug: CO2Stats - Failed to fetch trips for stats:', err);
@@ -134,9 +136,9 @@ export default defineComponent({
     };
     
     const fetchRanking = async () => {
-      console.log("### Debug: CO2Stats - Fetching user ranking");
+      log(`CO2Stats - Fetching user ranking`, 'debug');
       try {
-        console.log("### Debug: CO2Stats - Making ranking API request");
+        log(`CO2Stats - Making ranking API request`, 'debug');
         const response = await fetch(`${API_BASE_URL}/users/ranking`, {
           headers: {
             'Authorization': `Bearer ${authStore.token}`,
@@ -144,14 +146,14 @@ export default defineComponent({
           }
         });
         
-        console.log("### Debug: CO2Stats - Ranking API response status:", response.status);
+        log("CO2Stats - Ranking API response status:", 'debug', response.status);
         
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
-        console.log("### Debug: CO2Stats - Received ranking data:", data);
+        log(`CO2Stats - Received ranking data: ${data}`, 'debug');
         ranking.value = data;
       } catch (err) {
         console.error('### Debug: CO2Stats - Failed to fetch ranking:', err);
@@ -160,30 +162,30 @@ export default defineComponent({
     };
     
     const loadStats = async () => {
-      console.log("### Debug: CO2Stats - Loading all statistics");
+      log("CO2Stats - Loading all statistics", 'debug');
       loading.value = true;
       error.value = '';
       
       try {
-        console.log("### Debug: CO2Stats - Starting parallel API requests");
+        log("CO2Stats - Starting parallel API requests", 'debug');
         await Promise.all([fetchTrips(), fetchRanking()]);
-        console.log("### Debug: CO2Stats - All data loaded successfully");
+        log("CO2Stats - All data loaded successfully", 'debug');
       } catch (err) {
         console.error("### Debug: CO2Stats - Error loading statistics:", err);
         // Error already set in the fetch functions
       } finally {
-        console.log("### Debug: CO2Stats - Loading completed");
+        log("CO2Stats - Loading completed", 'debug');
         loading.value = false;
       }
     };
     
     onMounted(() => {
-      console.log("### Debug: CO2Stats - Component mounted");
+      log("CO2Stats - Component mounted", 'debug');
       if (authStore.token) {
-        console.log("### Debug: CO2Stats - User is authenticated, loading stats");
+        log("CO2Stats - User is authenticated, loading stats", 'debug');
         loadStats();
       } else {
-        console.log("### Debug: CO2Stats - User not authenticated, showing error");
+        log("CO2Stats - User not authenticated, showing error", 'debug');
         error.value = 'Veuillez vous connecter pour voir vos statistiques';
         loading.value = false;
       }

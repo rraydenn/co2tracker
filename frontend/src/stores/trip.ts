@@ -1,24 +1,10 @@
 import { defineStore } from 'pinia';
 import L from 'leaflet';
-import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
-import { fetchRoute } from '@/services/routing';
+import { log } from '@/utils/logger';
 import axios from 'axios';
 
 // Variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const LOG_LEVEL = 'info';
-
-// Utils : gestion du niveau de log
-function log(
-	message: string,
-	level: 'debug' | 'info' | 'warn' | 'error' = 'info'
-) {
-	const levelOrder = ['debug', 'info', 'warn', 'error'];
-	if (levelOrder.indexOf(level) >= levelOrder.indexOf(LOG_LEVEL)) {
-		console[level](`[AUTH] ${message}`);
-	}
-}
-
 
 export const useTripStore = defineStore('trip', {
   state: () => ({
@@ -118,16 +104,32 @@ export const useTripStore = defineStore('trip', {
           }
         )
 
+        if (response.status !== 200 && response.status !== 201) {
+          log(
+            `Erreur lors de l’enregistrement du trajet : statut ${response.status}`,
+            'error'
+          );
+          throw new Error(
+            `Erreur lors de l’enregistrement du trajet : statut ${response.status}`
+          );
+        }
+
+
         if(token) { localStorage.setItem('token', token); }
 
         log('Trajet enregistré avec succès.', 'info')
 
-      } catch (error) {
-          log(
-            'Échec de l’enregistrement du trajet : ' +
-            (error as Error).message,
-            'error'
-          )
+      } catch (error: any) {
+        let message = 'Échec de l’enregistrement du trajet : ';
+        if (error.response) {
+          message += `Serveur a répondu avec le statut ${error.response.status} : ${error.response.data?.message || error.response.statusText}`;
+        } else if (error.request) {
+          message += 'Aucune réponse du serveur.';
+        } else {
+          message += error.message;
+        }
+        log(message, 'error');
+        throw new Error(message);
       }
     },
 

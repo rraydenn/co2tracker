@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth";
 import HomePage from "@/views/HomePage.vue";
 import LoginPage from "@/views/LoginPage.vue";
 import RegisterPage from "@/views/RegisterPage.vue";
+import { log } from "@/utils/logger";
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -32,11 +33,11 @@ router.beforeEach(async (to, from, next) => {
     
     if (!authStore.token) {
       // No token, redirect to login
-      console.log('No token found, redirecting to login');
+      log('No token found, redirecting to login', 'warn');
       return next('/login');
     }
     
-    console.log('Authentication token found, proceeding to route');
+    log('Token found, proceeding to route', 'info');
   }
   
   return next();

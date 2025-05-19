@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import { Port } from '@/types/trip';
+import { log } from '@/utils/logger';
 
 export async function fetchRoute(
   start: L.LatLng, 
@@ -9,7 +10,7 @@ export async function fetchRoute(
   apiKey: string
 ): Promise<any> {
   const url = `${baseUrl}/v2/directions/${profile}?api_key=${apiKey}&start=${start.lng},${start.lat}&end=${end.lng},${end.lat}`;
-  console.log("### Debug: Sending OSRM route request to:", url);
+  log("Sending OSRM route request to:", 'debug', url);
 
   const response = await fetch(url);
   if (!response.ok) {
@@ -61,16 +62,16 @@ export async function findNearestPort(startLat: number, startLng: number): Promi
     }
 
     const data = await response.json();
-    console.log("### Debug: Overpass API response:", data);
+    log("Overpass API response:", 'debug', data);
     const ports = data.elements.map((port: { tags: { name?: string }; lat: number; lon: number }) => ({
       name: port.tags.name || 'Unknown Port',
       lat: port.lat,
       lon: port.lon
     }));
     
-    console.log("### Debug: Ports found:", ports);
+    log("Ports found:", 'debug', ports);
     if (ports.length === 0) {
-      console.log("### Debug: No ports found within 50 km");
+      log("No ports found within 50 km", 'debug');
       return null;
     }
 
@@ -87,10 +88,10 @@ export async function findNearestPort(startLat: number, startLng: number): Promi
     });
 
     if (nearestPort.name !== 'null') {
-      console.log("### Debug: Nearest port found:", nearestPort.name);
-      console.log(`### Debug: Distance to port = ${(minDistance / 1000).toFixed(2)} km`);
+      log("Nearest port found:", 'debug', nearestPort);
+      log(`Distance to nearest port: ${(minDistance / 1000).toFixed(2)} km`, 'debug');
     } else {
-      console.log("### Debug: No port found.");
+      log("No nearest port found", 'debug');
     }
 
     return nearestPort;

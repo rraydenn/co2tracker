@@ -24,6 +24,7 @@
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue'
+import { log } from '@/utils/logger'
 import Chart from 'chart.js/auto'
 
 export default defineComponent({
@@ -44,7 +45,7 @@ export default defineComponent({
       console.error('co2Emitted is undefined');
       co2Emitted = 666; // Set a default value if undefined
     } else {
-      console.log('co2Emitted:', co2Emitted);
+      log('Comparisons - co2Emitted:', 'debug', co2Emitted);
     }
     
     // Références pour les graphiques
@@ -66,8 +67,8 @@ export default defineComponent({
   const co2TerreLune = 10000000
 
 onMounted(() => {
-  console.log('co2Emitted:', co2Emitted);
-  console.log('Comparison component mounted');
+  log(`Comparisons - CO2 emitted: ${co2Emitted}`, 'debug');
+  log('Comparisons - Component mounted', 'debug');
 
   // Bougies allumées
   new Chart(candlesChart.value, {

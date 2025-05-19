@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import { Ref } from 'vue';
 import { reverseGeocode } from '@/services/geocoding';
+import { log } from '@/utils/logger';
 
 
 // start et end doivent être des variables globales pour pouvoir être modifiées par un fonction
@@ -13,7 +14,7 @@ let end = false;
 export function resetMarkersState() {
   start = false;
   end = false;
-  console.log("### Debug: Markers state reset (start and end set to false)");
+  log("Markers state reset (start and end set to false)", 'debug');
 }
 
 export function initializeMap(
@@ -24,32 +25,32 @@ export function initializeMap(
   onClearMap: () => void,
   openMenu: () => void,
 ): L.Map {
-  console.log("### Debug: Initializing map with container:", mapContainer);
+  log("Initializing map with container:", 'debug', mapContainer);
   
   const map = L.map(mapContainer).setView([48.8566, 2.3522], 7);
-  console.log("### Debug: Map created and centered on Paris");
+  log("Map created and centered on Paris", 'debug');
 
   const baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   });
 
   baseLayer.addTo(map);
-  console.log("### Debug: OSM tile layer added to map");
+  log("OSM tile layer added to map", 'debug');
 
   routeGroup.addTo(map);
 
 
   map.on('click', async (e: L.LeafletMouseEvent) => {
-    console.log("### Debug: Map clicked at coordinates:", e.latlng);
+    log("Map clicked at coordinates:", 'debug', e.latlng);
 
     if (end && start) {
-      console.log("### Debug: Both markers already exist, doing nothing.");
+      log ("Both markers already exist, doing nothing", 'debug');
       return;
     }
 
     // Add start marker
     if (!start) {
-      console.log("### Debug: Adding start marker");
+      log("Adding start marker", 'debug');
       onMarkerAdded(e.latlng, 'start');
 
       // Open menu
@@ -61,10 +62,10 @@ export function initializeMap(
       end = true;
       openMenu();
 
-      console.log("### Debug: Adding end marker");
+      log("Adding end marker", 'debug');
       onMarkerAdded(e.latlng, 'end');
 
-      console.log("### Debug: Calculating route...");
+      log("Calculating route...", 'debug');
       onRouteCalculationNeeded();
     }
   });
@@ -103,13 +104,13 @@ export function addMarker(
   calculateRoute: () => Promise<void>,
   skipReverseGeocode = false
 ): void {
-  console.log(`### Debug: Adding ${type} marker at:`, latlng);
+  log(`Adding ${type} marker at:`, 'debug', latlng);
   
   const isStart = type === 'start';
 
   if (isStart) {
     if (startMarker.value) {
-      console.log("### Debug: Updating existing start marker");
+      log("Updating existing start marker", 'debug');
       startMarker.value.setLatLng(latlng);
     } else {
       startMarker.value = L.marker(latlng, { icon: greenIcon, draggable: true })
@@ -117,7 +118,7 @@ export function addMarker(
         .bindPopup('Départ');
 
       startMarker.value.on('dragend', () => {
-        console.log("### Debug: Start marker dragged");
+        log("Start marker dragged", 'debug');
         setManuallySelected('start', false);
         if (startMarker.value) {
           const newPos = startMarker.value.getLatLng();
@@ -126,11 +127,11 @@ export function addMarker(
       });
       if (endMarker.value) calculateRoute();
 
-      console.log("### Debug: Start marker added");
+      log("Start marker added", 'debug');
     }
   } else {
     if (endMarker.value) {
-      console.log("### Debug: Updating existing end marker");
+      log("Updating existing end marker", 'debug');
       endMarker.value.setLatLng(latlng);
     } else {
       endMarker.value = L.marker(latlng, { icon: redIcon, draggable: true })
@@ -138,7 +139,7 @@ export function addMarker(
         .bindPopup('Arrivée');
 
       endMarker.value.on('dragend', () => {
-        console.log("### Debug: End marker dragged");
+        log("End marker dragged", 'debug');
         setManuallySelected('end', false);
         if(endMarker.value) {
           const newPos = endMarker.value.getLatLng();
@@ -146,7 +147,7 @@ export function addMarker(
         }
       });
       if (startMarker.value) calculateRoute();
-      console.log("### Debug: End marker added");
+      log("End marker added", 'debug');
     }
   }
 

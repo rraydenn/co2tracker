@@ -1,3 +1,5 @@
+import { log } from "@/utils/logger";
+
 export interface CO2Coefficients {
   [key: string]: number;
   voiture: number;
@@ -17,7 +19,7 @@ export function calculateCO2Emissions(
     bateau: 0.15
   };
   
-  console.log("### Debug: CO2 calculation inputs:", {
+  log("CO2 calculation inputs:", 'debug', {
     distanceKm,
     transportMode,
     coefficient: co2Coefficients[transportMode],
@@ -27,7 +29,7 @@ export function calculateCO2Emissions(
   const co2PerPerson = distanceKm * co2Coefficients[transportMode];
   const totalCO2 = co2PerPerson * numberOfPeople;
   
-  console.log("### Debug: Calculated CO2:", totalCO2, "kg");
+  log("Calculated CO2", 'debug', totalCO2, "kg");
   return totalCO2;
 }
 

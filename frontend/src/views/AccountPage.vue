@@ -33,6 +33,7 @@ import { defineComponent, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useAccountStore } from '@/stores/account';
 import { useRouter } from 'vue-router';
+import { log } from '@/utils/logger';
 import ProfileHeader from '@/components/results/ProfileHeader.vue';
 import TripHistory from '@/components/results/TripHistory.vue';
 import CO2Stats from '@/components/results/CO2Stats.vue';
@@ -56,7 +57,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      console.log("AccountPage mounted, token exists:", !!authStore.token);
+      log('AccountPage mounted, token exists:', 'debug', !!authStore.token);
       if (!authStore.token) {
         router.push('/login');
       } else {

@@ -2,22 +2,11 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 import { UserStats, UserData } from '@/types/user';
 import { Trip } from '@/types/trip';
+import { log } from '@/utils/logger';
 
 
 // Variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const LOG_LEVEL =  'info';
-
-// Utils : gestion du niveau de log
-function log(
-  message: string,
-  level: 'debug' | 'info' | 'warn' | 'error' = 'info'
-) {
-  const levelOrder = ['debug', 'info', 'warn', 'error'];
-  if (levelOrder.indexOf(level) >= levelOrder.indexOf(LOG_LEVEL)) {
-    console[level](`[ACCOUNT] ${message}`);
-  }
-}
 
 export const useAccountStore = defineStore('account', {
   state: () => ({
@@ -42,9 +31,9 @@ export const useAccountStore = defineStore('account', {
     
         // Fetch user name with better error handling
         try {
-          console.log('Fetching user data from API...');
+          log("Fetching user data from API...", 'debug');
           const userResponse = await axios.get(`${API_BASE_URL}/users/me`, { headers });
-          console.log('API Response:', userResponse.data);
+          log('API Response:', 'debug', userResponse.data);
           
           if (userResponse.data && typeof userResponse.data === 'object') {
             this.userData = {
@@ -55,7 +44,7 @@ export const useAccountStore = defineStore('account', {
               updated_at: userResponse.data.updated_at || null
             };
             
-            console.log('User data set:', this.userData);
+            log('User data fetched:', 'debug', this.userData);
           } else {
             throw new Error('Invalid response format from API');
           }
@@ -73,7 +62,7 @@ export const useAccountStore = defineStore('account', {
         this.userStats = statsResponse.data;
         */
     
-        log('Account data fetched successfully', 'info');
+        log('Account data fetched successfully', 'debug');
         return this.userData;
       } catch (error) {
         log('Error fetching account data: ' + (error as Error).message, 'error');

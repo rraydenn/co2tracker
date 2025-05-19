@@ -163,6 +163,7 @@ import { fetchRoute, calculateDirectDistance, findNearestPort } from '@/services
 import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
 import { resetMarkersState } from '@/services/map';
 import { useTripStore } from '@/stores/trip';
+import { log } from '@/utils/logger';
 import Comparisons from '../components/results/Comparisons.vue';
 
 
@@ -176,7 +177,7 @@ export default defineComponent({
   },
 
   setup() {
-    console.log("### Debug: HomePage component setup initialized");
+    log("HomePage component setup started", 'debug');
 
     // Map-related state
     const mapContainer = ref<HTMLElement | null>(null);
@@ -231,7 +232,7 @@ export default defineComponent({
         people.value > 0 &&
         transport.value !== ''
       );
-      console.log("### Debug: Form validity checked:", valid);
+      log("Form validity checked:", 'debug', valid);
       return valid;
     });
 
@@ -246,12 +247,12 @@ export default defineComponent({
 
     const toggleMenu = () => {
       isMenuVisible.value = !isMenuVisible.value;
-      console.log("### Debug: Menu visibility toggled to:", isMenuVisible.value);
+      log("Menu visibility toggled:", 'debug', isMenuVisible.value);
     };
 
     const openMenu = () => {
       isMenuVisible.value = true;
-      console.log("### Debug: Menu opened");
+      log("Menu opened:", 'debug');
     }
 
     const clearMap = () => {
@@ -269,7 +270,7 @@ export default defineComponent({
     };
 
     const onDepartureInput = () => {
-      console.log("### Debug: Departure input event fired, current value:", departure.value);
+      log("Departure input event fired, current value:", 'debug', departure.value);
 
       if (departureTimer) {
         window.clearTimeout(departureTimer);
@@ -290,7 +291,7 @@ export default defineComponent({
     };
 
     const onArrivalInput = () => {
-      console.log("### Debug: Arrival input event fired, current value:", arrival.value);
+      log("Arrival input event fired, current value:", 'debug', arrival.value);
 
       if (arrivalTimer) {
         window.clearTimeout(arrivalTimer);
@@ -311,7 +312,7 @@ export default defineComponent({
     };
 
     const selectDepartureResult = (result: AutocompleteResult) => {
-      console.log("### Debug: Departure result selected:", result);
+      log("Departure result selected:", 'debug', result);
       departure.value = result.display_name;
       departureResults.value = [];
 
@@ -338,7 +339,7 @@ export default defineComponent({
     };
 
     const selectArrivalResult = (result: AutocompleteResult) => {
-      console.log("### Debug: Arrival result selected:", result);
+      log("Arrival result selected:", 'debug', result);
       arrival.value = result.display_name;
       arrivalResults.value = [];
 
@@ -381,7 +382,7 @@ export default defineComponent({
     };
 
     const calculateRoute = async () => {
-      console.log("### Debug: Calculating route between markers");
+      log("Calculating route between markers", 'debug');
 
       if (!map.value || !startMarker.value || !endMarker.value) {
         console.error("### Debug: Cannot calculate route, map or markers not initialized");
@@ -393,11 +394,11 @@ export default defineComponent({
 
       const startLatLng = startMarker.value.getLatLng();
       const endLatLng = endMarker.value.getLatLng();
-      console.log("### Debug: Route coordinates - Start:", startLatLng, "End:", endLatLng);
+      log(`Route coordinates - Start: ${startLatLng}, End: ${endLatLng}`, 'debug');
 
       // Clear existing route if it exists
       if (routeLayer.value && map.value) {
-        console.log("### Debug: Removing existing route layer");
+        log("Removing existing route layer", 'debug');
         routeLayer.value.remove();
         routeLayer.value = null;
       }
@@ -406,7 +407,7 @@ export default defineComponent({
         // Handle different transport modes
         if (transport.value === "avion") {
           // AIRPLANE MODE - Direct line
-          console.log("### Debug: Calculating direct flight distance");
+          log("Calculating direct flight distance", 'debug');
           
           const distanceInMeters = calculateDirectDistance(startLatLng, endLatLng);
           distance.value = (distanceInMeters / 1000).toFixed(2);
@@ -421,7 +422,7 @@ export default defineComponent({
         }
         else if (transport.value === "bateau") {
           // BOAT MODE
-          console.log("### Debug: Calculating boat route");
+          log("Calculating boat route", 'debug');
           
           // Find nearest ports
           const nearestPort1 = await findNearestPort(startLatLng.lat, startLatLng.lng);
@@ -471,10 +472,10 @@ export default defineComponent({
         }
         else {
           // CAR MODE - Default
-          console.log("### Debug: Using OSRM API for route calculation");
+          log("Using OSRM API for car route calculation", 'debug');
           
           const routeData = await fetchRoute(startLatLng, endLatLng, "driving-car", OSRM_BASE_URL, OSRM_API_KEY);
-          console.log("### Debug: Route data received:", routeData);
+          log("Route data received:", 'debug', routeData);
           
           const newRoute = L.geoJSON(routeData.features[0].geometry);
           routeGroup.value.addLayer(newRoute);
@@ -484,14 +485,14 @@ export default defineComponent({
         }
       }
       catch (error) {
-        console.error("### Debug: Error calculating route:", error);
+        console.error("Error calculating route:", error);
       }
       
       routeCalculationInProgress.value = false;
     };
 
     const onTravelFormSubmit = () => {
-      console.log("### Debug: Travel form submitted");
+      log("Travel form submitted", 'debug');
       
       // Calculate CO2 emissions
       const distanceNum = parseFloat(distance.value);
@@ -571,9 +572,9 @@ export default defineComponent({
 
     // Lifecycle hooks
     onMounted(() => {
-      console.log("### Debug: Component mounted");
+      log("HomePage component mounted", 'debug');
       nextTick(() => {
-        console.log("### Debug: Next tick after mount, initializing map");
+        log("Next tick after mount, initializing map", 'debug');
         if (mapContainer.value) {
           map.value = initializeMap(
             mapContainer.value, 
@@ -584,7 +585,7 @@ export default defineComponent({
             openMenu,
           );
           setTimeout(() => {
-            console.log("### Debug: Map initialized, invalidating size");
+            log("Map initialized, invalidating size", 'debug');
             
             map.value?.invalidateSize();
           }, 500);
