@@ -50,10 +50,9 @@
 
           <label for="transport">Mode de transport:</label>
           <select id="transport" v-model="transport" required>
-            <option value="voiture">Voiture</option>
-            <option value="avion">Avion</option>
-            <option value="bateau">Bateau</option>
-
+            <option v-for="t in transports" :key="t.id" :value="t.name">
+              {{ t.name }}
+            </option>
           </select>
 
           
@@ -185,7 +184,7 @@ import { AutocompleteResult, ManualSelectionState } from '@/types/map';
 import { initializeMap, addMarker } from '@/services/map';
 import { searchLocation } from '@/services/geocoding';
 import { fetchRoute, calculateDirectDistance, findNearestPort } from '@/services/routing';
-import { calculateCO2Emissions, calculateCO2BarWidth } from '@/services/co2';
+import { calculateCO2Emissions, calculateCO2BarWidth, fetchTransports, Transport } from '@/services/co2';
 import { resetMarkersState } from '@/services/map';
 import { useTripStore } from '@/stores/trip';
 import { log } from '@/utils/logger';
@@ -223,7 +222,7 @@ export default defineComponent({
     const departure = ref('');
     const arrival = ref('');
     const people = ref(1);
-    const transport = ref('voiture');
+    const transport = ref('');
     const distance = ref('0');
     const calculatedCO2 = ref('0 kg CO2');
     const co2BarWidth = ref(50); // Default value for demonstration
@@ -249,6 +248,9 @@ export default defineComponent({
     // Environment variables
     const OSRM_BASE_URL = import.meta.env.VITE_OSRM_BASE_URL;
     const OSRM_API_KEY = import.meta.env.VITE_OSRM_API_KEY;
+
+    // Add transports state
+    const transports = ref<Transport[]>([]);
 
     // Computed properties
     const isFormValid = computed(() => {
@@ -536,7 +538,7 @@ export default defineComponent({
       
       // Calculate CO2 emissions
       const distanceNum = parseFloat(distance.value);
-      const totalCO2 = calculateCO2Emissions(distanceNum, transport.value, people.value);
+      const totalCO2 = calculateCO2Emissions(distanceNum, transport.value, people.value, transports.value);
       
       calculatedCO2.value = `${totalCO2.toFixed(2)} kg CO2`;
       co2BarWidth.value = calculateCO2BarWidth(totalCO2);
@@ -551,74 +553,71 @@ export default defineComponent({
     };
 
     const saveTrip = async () => {
-
-      //transport
-
-      //TODO: trouver une meilleur methode pour remplir la base de donnée pour le mode de transport (à faire qu'une seul fois)
-      //ici on va faire a chaque fois appel a la base de donnée pour voir s'il existe ou non le transport
-      //pas un pb a notre echelle mais c'est bof
-
-      let co2_per_km
-      let average_speed
+      // Find the selected transport from the API data
+      const selectedTransport = transports.value.find(t => t.name === transport.value);
       
-      switch (transport.value) {
-        case 'voiture':
-          co2_per_km = 0.2 // kg/km 
-          average_speed = 50 // km/h
-          break
-        case 'avion':
-          co2_per_km = 0.3 
-          average_speed = 850
-          break
-        case 'bateau':
-          co2_per_km = 0.15
-          average_speed = 30
-          break
-        default:
-          co2_per_km = 0
-          average_speed = 0
-          break
-        }
+      if (!selectedTransport) {
+        console.error('Selected transport not found in API data');
+        return;
+      }
 
-      const transportID = await tripStore.savingTransport(transport.value, co2_per_km , average_speed)
+      const transportID = await tripStore.savingTransport(
+        selectedTransport.name,
+        selectedTransport.co2_per_km,
+        selectedTransport.average_speed
+      );
 
       //ID position de depart      
-      let departureID = null
+      let departureID = null;
       if (startMarker.value) {
         const latlng = startMarker.value.getLatLng();
-        departureID = await tripStore.savingAddress( departure.value, latlng.lat , latlng.lng)
+        departureID = await tripStore.savingAddress(departure.value, latlng.lat, latlng.lng);
       }
 
       //ID position arrive
-      let arrivalID = null
+      let arrivalID = null;
       if (endMarker.value) {
         const latlng = endMarker.value.getLatLng();
-        arrivalID = await tripStore.savingAddress( arrival.value, latlng.lat , latlng.lng)
+        arrivalID = await tripStore.savingAddress(arrival.value, latlng.lat, latlng.lng);
       }
 
       //Distance
       const distanceInMk = parseFloat(distance.value);
 
       //cout en co2
-      const co2Cost = calculateCO2Emissions(distanceInMk, transport.value, people.value);
+      const co2Cost = calculateCO2Emissions(distanceInMk, transport.value, people.value, transports.value);
 
-      if (userToken && departureID) { await tripStore.savingTripToHistory( userToken, transportID , departureID, arrivalID, distanceInMk, co2Cost) 
+      if (userToken && departureID) {
+        await tripStore.savingTripToHistory(userToken, transportID, departureID, arrivalID, distanceInMk, co2Cost);
         alert('✅ Trajet enregistré avec succès !');
+      } else {
+        console.warn('### Debug: Un ou plusieurs paramètres sont invalides. savingTrip non lancé.');
       }
-        else { console.warn('### Debug: Un ou plusieurs paramètres sont invalides. savingTrip non lancé.') }
-      
-     };
+    };
 
-     const closeTutorial= () => {
+    const closeTutorial= () => {
       showTutorial.value = false;
       localStorage.setItem('tutorialShown', 'true');
       log("Tutorial closed", 'debug');
-     }
+    }
     
+
+    // Add fetchTransportsData function
+    const fetchTransportsData = async () => {
+      try {
+        transports.value = await fetchTransports();
+        if (transports.value.length > 0) {
+          transport.value = transports.value[0].name;
+        }
+      } catch (error) {
+        console.error('Failed to fetch transports:', error);
+      }
+    };
 
     // Lifecycle hooks
     onMounted(() => {
       log("HomePage component mounted", 'debug');
+      fetchTransportsData();
       nextTick(() => {
         log("Next tick after mount, initializing map", 'debug');
         if (mapContainer.value) {
@@ -682,6 +681,7 @@ export default defineComponent({
       co2BarWidth,
       departureResults,
       arrivalResults,
+      transports,
       // Computed
       isFormValid,
       // Methods

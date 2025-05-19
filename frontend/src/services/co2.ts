@@ -1,32 +1,42 @@
 import { log } from "@/utils/logger";
 
-export interface CO2Coefficients {
-  [key: string]: number;
-  voiture: number;
-  avion: number;
-  bateau: number;
+export interface Transport {
+  id: number;
+  name: string;
+  co2_per_km: number;
+  average_speed: number;
+}
+
+export async function fetchTransports(): Promise<Transport[]> {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const response = await fetch(`${API_BASE_URL}/transports`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch transports');
+  }
+  const data = await response.json();
+  log("Fetched transports:", 'debug', data);
+  return data as Transport[];
 }
 
 export function calculateCO2Emissions(
   distanceKm: number,
   transportMode: string,
-  numberOfPeople: number
+  numberOfPeople: number,
+  transports: Transport[]
 ): number {
-  // CO2 coefficients in kg per km per person
-  const co2Coefficients: CO2Coefficients = {
-    voiture: 0.2,
-    avion: 0.3,
-    bateau: 0.15
-  };
+  const transport = transports.find(t => t.name.toLowerCase() === transportMode.toLowerCase());
+  if (!transport) {
+    throw new Error(`Transport mode "${transportMode}" not found`);
+  }
   
   log("CO2 calculation inputs:", 'debug', {
     distanceKm,
     transportMode,
-    coefficient: co2Coefficients[transportMode],
+    coefficient: transport.co2_per_km,
     numberOfPeople
   });
 
-  const co2PerPerson = distanceKm * co2Coefficients[transportMode];
+  const co2PerPerson = distanceKm * transport.co2_per_km;
   const totalCO2 = co2PerPerson * numberOfPeople;
   
   log("Calculated CO2", 'debug', totalCO2, "kg");

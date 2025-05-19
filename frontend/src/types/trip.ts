@@ -28,6 +28,7 @@ export interface Trip {
   endAddressId: number;
   distanceKm: number;
   co2Total: number;
+  createdAt: string;
   transport?: Transport;
   startAddress?: Address;
   endAddress?: Address;
