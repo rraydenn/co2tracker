@@ -89,7 +89,6 @@ test.group('Transport flow (TransportsController)', (group) => {
     })
 
     response.assertStatus(200)
-    console.log('PATCH response:', response.body()) // pour voir la vraie structure
     assert.equal(response.body().averageSpeed, 30)
   })
 
