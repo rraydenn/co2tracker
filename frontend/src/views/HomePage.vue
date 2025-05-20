@@ -447,7 +447,7 @@ export default defineComponent({
 
       try {
         // Handle different transport modes
-        if (transport.value === "avion") {
+        if (transport.value === "Avion") {
           // AIRPLANE MODE - Direct line
           log("Calculating direct flight distance", 'debug');
           
@@ -462,7 +462,7 @@ export default defineComponent({
           }).addTo(map.value as L.Map);
           routeGroup.value.addLayer(newRoute);
         }
-        else if (transport.value === "bateau") {
+        else if (transport.value === "Bateau") {
           // BOAT MODE
           log("Calculating boat route", 'debug');
           
