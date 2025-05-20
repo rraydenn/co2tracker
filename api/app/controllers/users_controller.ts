@@ -110,7 +110,13 @@ export default class UsersController {
     }
   }
 
-  async getRanking({ response }: HttpContext) {
+  async getRanking({ auth, response }: HttpContext) {
+    const currentUser = await auth.authenticate()
+    if (!currentUser) {
+      return response.unauthorized({ error: 'User not authenticated' })
+    }
+
+    // Get all users' rankings
     const ranking = await db
       .from('users')
       .leftJoin('histories', 'users.id', 'histories.user_id')
@@ -121,16 +127,15 @@ export default class UsersController {
         db.raw('COALESCE(SUM(histories.distance_km), 0) as total_distance')
       )
       .groupBy('users.id', 'users.full_name')
-      .orderBy('total_distance', 'asc')
+      .orderBy('total_co2', 'asc')
       .limit(100)
 
-    const rankedUsers = ranking.map((user, index) => ({
-      rank: index + 1,
-      full_name: user.full_name,
-      total_co2: Number(user.total_co2),
-      total_distance: Number(user.total_distance),
-    }))
+    // Find current user's position
+    const userRanking = ranking.findIndex(user => user.id === currentUser.id) + 1
 
-    return response.ok(rankedUsers)
-  }
+    // Return only the current user's ranking
+    return response.ok([{
+      rank: userRanking,
+    }])
+  } 
 }
