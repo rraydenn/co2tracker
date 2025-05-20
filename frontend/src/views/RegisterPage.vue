@@ -35,7 +35,7 @@
 							class="form-input"
 							:disabled="!isActive" />
 					</div>
-					<button type="submit" class="button">Register</button>
+					<button type="submit" class="button-register">Register</button>
 				</form>
 				<p class="footer">
 					Already have an account?
@@ -119,16 +119,57 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.return-btn {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 8px 16px;
-  background: #4a8;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  text-align: center;
+
+.link {
+    color: #4a8;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .link:hover {
+    text-decoration: underline;
+  }
+
+  .form-label{
+	color: #1f2937;
+	font-weight: bold;
+    font-size: 1.1rem;
+
+  }
+
+  .form-input{
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
+
+  .button-register{
+	width: 100%;
+  	background-color: #1f2937;
+  	color: white;
+  	padding: 0.6rem;
+  	border: none;
+  	border-radius: 5px;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+
+  }
+
+  .return-btn {
+    display: block;
+    margin-top: 20px;
+    padding: 8px 16px;
+    background: #4a8;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    transition: background 0.3s;
+  }
 .return-btn:hover {
   background: #3a7;
 }

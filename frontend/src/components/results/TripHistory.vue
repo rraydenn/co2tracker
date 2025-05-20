@@ -13,6 +13,7 @@
       </div>
       <div v-else class="trips-list">
         <div v-for="trip in trips" :key="trip.id" class="trip-item">
+          <button @click="deleteTrip(trip.id)" class="delete-button">✖</button>
           <div class="trip-header">
             <div class="trip-route"> </div> 
             <div class="trip-date">{{ formatDate(trip.createdAt) }}</div>
@@ -90,6 +91,24 @@
           loading.value = false;
         }
       };
+
+      const deleteTrip = async (tripId: number) =>  {
+        try {
+        const response = await fetch(`${API_BASE_URL}/users/history/${tripId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${authStore.token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          trips.value = trips.value.filter(trip => trip.id !== tripId);
+          alert('✅ Trajet supprimé avec succès !');
+          
+        } catch(err) { 
+          console.error('### Debug: TripHistory - Failed to delete trips:', err);
+        }
+      };
       
       onMounted(() => {
         log("TripHistory - Component mounted", 'debug');
@@ -108,7 +127,8 @@
         loading,
         error,
         formatDate,
-        formatCO2
+        formatCO2,
+        deleteTrip
       };
     }
   });
@@ -158,6 +178,7 @@ h2 {
 }
 
 .trip-item {
+  position: relative;
   border-bottom: 1px solid #eee;
   padding: 12px 0;
 }
@@ -207,5 +228,14 @@ h2 {
 .distance {
   color: #48a;
   
+}
+
+.delete-button{
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  position: absolute;
+  color: red;
+  right: 10px;
 }
 </style>
