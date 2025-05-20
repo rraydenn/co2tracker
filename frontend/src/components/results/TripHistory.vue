@@ -104,7 +104,8 @@
 
           trips.value = trips.value.filter(trip => trip.id !== tripId);
           alert('✅ Trajet supprimé avec succès !');
-          
+          window.location.reload();
+
         } catch(err) { 
           console.error('### Debug: TripHistory - Failed to delete trips:', err);
         }
