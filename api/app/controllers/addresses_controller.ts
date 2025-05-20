@@ -6,8 +6,7 @@ export default class AddressesController {
      * @index
      * @summary Get array of addresses
      * @description Retrieves all addresses.
-     * @param {HttpContext} context - The HTTP context containing the response object.
-     * @returns {Promise<void>} A JSON response with all addresses.
+     * @responseBody 200 - <Address[]>
      */
     async index({ response }: HttpContext) {
         const addresses = await Address.all()
@@ -18,8 +17,7 @@ export default class AddressesController {
      * @show
      * @summary Get a specific address
      * @description Retrieves a specific address by ID.
-     * @param {HttpContext} context - The HTTP context containing the parameters and response objects.
-     * @returns {Promise<void>} A JSON response with the specific address or a not found message.
+     * @responseBody 200 - <Address> // returns model specification
      */
     async show({params, response}: HttpContext) {
         const address = await Address.find(params.id)
@@ -34,8 +32,8 @@ export default class AddressesController {
      * @create
      * @summary Create a new address
      * @description Creates a new address.
-     * @param {HttpContext} context - The HTTP context containing the request and response objects.
-     * @returns {Promise<void>} A JSON response with the created address.
+     * @responseBody 201 - <Address> // returns model specification
+     * @requestBody {"full_address": "string", "latitude": 1, "longitude": 1}
      */
     async create({request, response}: HttpContext) {
         const address = await Address.create(request.body())
@@ -46,8 +44,7 @@ export default class AddressesController {
      * @update
      * @summary Update an existing address
      * @description Updates an existing address by ID.
-     * @param {HttpContext} context - The HTTP context containing the parameters, request, and response objects.
-     * @returns {Promise<void>} A JSON response with the updated address or a not found message.
+     * @responseBody 200 - <Address> // returns model specification
      */
     async update({params, request, response}: HttpContext) {
         const address = await Address.find(params.id)
@@ -65,8 +62,7 @@ export default class AddressesController {
      * @destroy
      * @summary Delete a specific address
      * @description Deletes a specific address by ID.
-     * @param {HttpContext} context - The HTTP context containing the parameters and response objects.
-     * @returns {Promise<void>} A no content response or a not found message.
+     * @responseBody 204 - {}
      */
     async destroy({params, response}: HttpContext) {
         const address = await Address.find(params.id)

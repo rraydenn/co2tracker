@@ -9,7 +9,6 @@ export default class HistoriesController {
    * @summary Find an existing address
    * @description Searches for an existing address based on coordinates or full address.
    * @param {Object} addressData - The address data containing full address, latitude, and longitude.
-   * @returns {Promise<Address|null>} The found address or null if not found.
    */
   private async findExistingAddress(addressData: {
     full_address: string
@@ -38,8 +37,7 @@ export default class HistoriesController {
    * @index
    * @summary Get user's travel history
    * @description Retrieves the travel history of the authenticated user.
-   * @param {HttpContext} context - The HTTP context containing the authentication and response objects.
-   * @returns {Promise<void>} A JSON response with the user's travel history.
+   * @responseBody 200 - <History[]> // returns array of travel history objects
    */
   async index({ auth, response }: HttpContext) {
 
@@ -56,8 +54,7 @@ export default class HistoriesController {
    * @show
    * @summary Get a specific travel history entry
    * @description Retrieves a specific travel history entry.
-   * @param {HttpContext} context - The HTTP context containing the authentication, parameters, and response objects.
-   * @returns {Promise<void>} A JSON response with the specific travel history or a not found message.
+   * @responseBody 200 - <History> // returns a specific travel history object
    */
   async show({ auth, params, response }: HttpContext) {
     const history = await History.query()
@@ -79,8 +76,7 @@ export default class HistoriesController {
    * @create
    * @summary Create a new travel history entry
    * @description Creates a new travel history entry.
-   * @param {HttpContext} context - The HTTP context containing the authentication, request, and response objects.
-   * @returns {Promise<void>} A JSON response with the created travel history or a bad request message.
+   * @requestBody {"transport_id": 1, "start_address_id": 1, "end_address_id": 2, "distance_km": 10, "co2_total": 10}
    */
   async create({ auth, request, response }: HttpContext) {
     const data = await request.validateUsing(createHistoryValidator)
@@ -141,8 +137,7 @@ export default class HistoriesController {
    * @destroy
    * @summary Delete a specific travel history entry
    * @description Deletes a specific travel history entry.
-   * @param {HttpContext} context - The HTTP context containing the authentication, parameters, and response objects.
-   * @returns {Promise<void>} A no content response or a not found message.
+   * @responseBody 204 - {}
    */
   async destroy({ auth, params, response }: HttpContext) {
     const history = await History.query()

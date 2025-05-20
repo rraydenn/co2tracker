@@ -5,10 +5,22 @@
       <p>Vous devez être connecté pour accéder à cette page.</p>
       <router-link to="/login" class="login-btn">Se connecter</router-link>
     </div>
-    <div v-else class="profile-card">
-      <UserProfile :token="authStore.token" />
+    <div v-else class="profile-container">
+      <ProfileHeader :userData="accountStore.userData" :loading="accountStore.loading" />
       
-      <div class="button-container" style="display: flex; justify-content: space-between; margin-top: 20px;">
+      <div class="account-sections">
+        <TripHistory 
+          :trips="accountStore.userTrips" 
+          :loading="accountStore.loading" 
+          :error="accountStore.error" 
+        />
+        <CO2Stats 
+          :stats="accountStore.userStats" 
+          :loading="accountStore.loading" 
+        />
+      </div>
+      
+      <div class="button-container">
         <router-link to="/" class="return-btn">Retour à l'accueil</router-link>
         <button class="button-danger" @click="logout">Déconnexion</button>
       </div>
@@ -18,18 +30,25 @@
 
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '@/stores/auth';
+import { useAccountStore } from '@/stores/account';
 import { useRouter } from 'vue-router';
-import UserProfile from './UserProfile.vue';
+import { log } from '@/utils/logger';
+import ProfileHeader from '@/components/results/ProfileHeader.vue';
+import TripHistory from '@/components/results/TripHistory.vue';
+import CO2Stats from '@/components/results/CO2Stats.vue';
 
 export default defineComponent({
   name: 'AccountPage',
   components: {
-    UserProfile
+    ProfileHeader,
+    TripHistory,
+    CO2Stats
   },
 
   setup() {
     const authStore = useAuthStore();
+    const accountStore = useAccountStore();
     const router = useRouter();
 
     const logout = () => {
@@ -38,14 +57,17 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      console.log("AccountPage mounted, token exists:", !!authStore.token);
+      log('AccountPage mounted, token exists:', 'debug', !!authStore.token);
       if (!authStore.token) {
         router.push('/login');
+      } else {
+        accountStore.fetchAccountData(authStore.token);
       }
     });
 
     return {
       authStore,
+      accountStore,
       logout
     };
   },
@@ -68,16 +90,32 @@ export default defineComponent({
   margin-top: 20px;
 }
 
-.profile-card {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.account-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .account-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 
 .login-btn, .return-btn {
   display: inline-block;
-  margin-top: 10px;
   padding: 8px 16px;
   background: #4a8;
   color: white;
