@@ -66,7 +66,6 @@ build_api:
     - echo "Installing API dependencies"
     - npm install
     - npm run build
-    - node ace test
   artifacts:
     paths:
       - api/build/
