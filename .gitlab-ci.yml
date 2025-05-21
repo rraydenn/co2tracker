@@ -2,8 +2,8 @@ image: node:23-alpine
 
 stages:
   - setup
-  - sonarqube-check
   - build
+  - sonarqube-check
   - deploy
 
 variables:
@@ -106,11 +106,11 @@ deploy_api:
     - echo "Deploying API to $HOST..."
     - scp -r -o StrictHostKeyChecking=no -i $CI_SSH_KEY ./api/build $DEPLOY_USER@$HOST:$DEPLOY_PATH/
     - ssh -o StrictHostKeyChecking=no -i $CI_SSH_KEY $DEPLOY_USER@$HOST "
-        cd $DEPLOY_PATH/build &&
-        npm ci --omit=dev &&
-        node ace migration:fresh &&
-        cd .. &&
-        pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js"
+      cd $DEPLOY_PATH/build &&
+      npm ci --omit=dev &&
+      node ace migration:fresh &&
+      cd .. &&
+      pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js"
 
 ###########################
 # Deploy Front to server

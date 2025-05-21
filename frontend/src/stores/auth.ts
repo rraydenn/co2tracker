@@ -1,27 +1,10 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-
-// Types
-interface User {
-	full_name: string;
-	email: string;
-	password: string;
-}
+import { User } from '@/types/user';
+import { log } from '@/utils/logger';
 
 // Variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const LOG_LEVEL = import.meta.env.VITE_LOG_LEVEL || 'info';
-
-// Utils : gestion du niveau de log
-function log(
-	message: string,
-	level: 'debug' | 'info' | 'warn' | 'error' = 'info'
-) {
-	const levelOrder = ['debug', 'info', 'warn', 'error'];
-	if (levelOrder.indexOf(level) >= levelOrder.indexOf(LOG_LEVEL)) {
-		console[level](`[AUTH] ${message}`);
-	}
-}
 
 export const useAuthStore = defineStore('auth', {
 	state: () => ({

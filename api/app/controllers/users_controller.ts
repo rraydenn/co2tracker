@@ -9,7 +9,7 @@ export default class UsersController {
    * @index
    * @summary Get array of users
    * @description Returns an array of users with id, fullname, email, created at, updated at.
-   * @returns {Promise<Array>} Array of user objects.
+   * @responseBody 200 - <User[]>
    */
   index() {
     return db.query().select('id', 'full_name', 'email', 'created_at', 'updated_at').from('users')
@@ -19,19 +19,21 @@ export default class UsersController {
    * @login
    * @summary Authenticate user
    * @description Authenticates a user and returns an access token.
-   * @param {HttpContext} context - The HTTP context containing the request.
-   * @returns {Promise<Object>} An object containing the token type and value.
+   * @requestBody {"email": "string", "password": "string"}
    */
-  async login({ request }: HttpContext) {
+  async login({ request, response }: HttpContext) {
     const body = request.body()
     const email = body.email as string
     const password = body.password as string
 
-    const user = await User.verifyCredentials(email, password)
+    const user = await User.verifyCredentials(email, password).catch(() => {
+      return response.unauthorized({ error: 'Invalid credentials' })
+    })
 
     if (user) {
       const token = await User.accessTokens.create(user)
       console.log('Logged in')
+
       return {
         type: 'bearer',
         token: token.value!.release(),
@@ -43,26 +45,30 @@ export default class UsersController {
    * @logout
    * @summary Logout user
    * @description Logs out the authenticated user by deleting their access token.
-   * @param {HttpContext} context - The HTTP context containing the authentication object.
-   * @returns {Promise<void>}
    */
   async logout({ auth }: HttpContext) {
     const user = await auth.authenticate()
     await User.accessTokens.delete(user, user.currentAccessToken.identifier)
+    console.log('Logged out')
   }
 
   /**
    * @create
    * @summary Create a new user
    * @description Creates a new user and stores it in the database.
-   * @param {HttpContext} context - The HTTP context containing the request and response.
-   * @returns {Promise<void>}
+   * @responseBody 201 - <User> // returns no content
+   * @responseBody 409 - {error: "Email already exists"} // if email already exists
+   * @requestBody {"full_name": "string", "email": "exemple@exemple", "password": "string"}
    */
   async create({ request, response }: HttpContext) {
     const body = request.body()
     body.created_at = DateTime.now()
     body.updated_at = DateTime.now()
 
+    const existingUser = await db.query().from('users').where('email', body.email).first()
+    if (existingUser) {
+      return response.conflict({ error: 'Email already exists' })
+    }
     const user: User = body as User
     user.password = await hash.make(user.password)
 
@@ -74,14 +80,62 @@ export default class UsersController {
    * @getMyInfo
    * @summary Get authenticated user's information
    * @description Retrieves the authenticated user's information.
-   * @param {HttpContext} context - The HTTP context containing the authentication object.
-   * @returns {Promise<Object>} An object containing the user's full name and creation date.
+   * @responseBody 200 - <User>.only(full_name, created_at)
    */
   async getMyInfo({ auth }: HttpContext) {
     const user = await auth.authenticate()
+
+    if (!user) {
+      return { message: 'User not found' }
+    }
+
+    const result = await db
+      .query()
+      .from('histories')
+      .where('user_id', user.id)
+      .select(
+        db.raw('SUM(co2_total) as total_co2'),
+        db.raw('SUM(distance_km) as total_distance_km')
+      )
+      .first()
+
+    const total_co2 = result.total_co2 == null ? 0 : result.total_co2
+    const total_distance_km = result.total_distance_km == null ? 0 : result.total_distance_km
+
     return {
       full_name: user.fullName,
       created_at: user.createdAt,
+      distance_km: total_distance_km,
+      co2_total: total_co2,
     }
   }
+
+  async getRanking({ auth, response }: HttpContext) {
+    const currentUser = await auth.authenticate()
+    if (!currentUser) {
+      return response.unauthorized({ error: 'User not authenticated' })
+    }
+
+    // Get all users' rankings
+    const ranking = await db
+      .from('users')
+      .leftJoin('histories', 'users.id', 'histories.user_id')
+      .select(
+        'users.id',
+        'users.full_name',
+        db.raw('COALESCE(SUM(histories.co2_total), 0) as total_co2'),
+        db.raw('COALESCE(SUM(histories.distance_km), 0) as total_distance')
+      )
+      .groupBy('users.id', 'users.full_name')
+      .orderBy('total_co2', 'asc')
+      .limit(100)
+
+    // Find current user's position
+    const userRanking = ranking.findIndex(user => user.id === currentUser.id) + 1
+
+    // Return only the current user's ranking
+    return response.ok([{
+      rank: userRanking,
+    }])
+  } 
 }

@@ -1,45 +1,12 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { UserStats, UserData } from '@/types/user';
+import { Trip } from '@/types/trip';
+import { log } from '@/utils/logger';
 
-// Types
-interface UserStats {
-  totalTrips: number;
-  totalCO2: string;
-  ranking: string;
-}
-
-interface Trip {
-  id: number;
-  departure: string;
-  arrival: string;
-  transport: string;
-  co2: string;
-  created_at: string;
-  user_id: number;
-}
-
-interface UserData {
-  id: number | null;
-  full_name: string | null;
-  email: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-}
 
 // Variables d'environnement
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const LOG_LEVEL = import.meta.env.VITE_LOG_LEVEL || 'info';
-
-// Utils : gestion du niveau de log
-function log(
-  message: string,
-  level: 'debug' | 'info' | 'warn' | 'error' = 'info'
-) {
-  const levelOrder = ['debug', 'info', 'warn', 'error'];
-  if (levelOrder.indexOf(level) >= levelOrder.indexOf(LOG_LEVEL)) {
-    console[level](`[ACCOUNT] ${message}`);
-  }
-}
 
 export const useAccountStore = defineStore('account', {
   state: () => ({
@@ -64,20 +31,20 @@ export const useAccountStore = defineStore('account', {
     
         // Fetch user name with better error handling
         try {
-          console.log('Fetching user data from API...');
+          log("Fetching user data from API...", 'debug');
           const userResponse = await axios.get(`${API_BASE_URL}/users/me`, { headers });
-          console.log('API Response:', userResponse.data);
+          log('API Response:', 'debug', userResponse.data);
           
           if (userResponse.data && typeof userResponse.data === 'object') {
             this.userData = {
               id: userResponse.data.id || null,
               full_name: userResponse.data.full_name || null,
               email: userResponse.data.email || null,
-              created_at: userResponse.data.create_at || null,
+              created_at: userResponse.data.created_at || null,
               updated_at: userResponse.data.updated_at || null
             };
             
-            console.log('User data set:', this.userData);
+            log('User data fetched:', 'debug', this.userData);
           } else {
             throw new Error('Invalid response format from API');
           }
@@ -95,7 +62,7 @@ export const useAccountStore = defineStore('account', {
         this.userStats = statsResponse.data;
         */
     
-        log('Account data fetched successfully', 'info');
+        log('Account data fetched successfully', 'debug');
         return this.userData;
       } catch (error) {
         log('Error fetching account data: ' + (error as Error).message, 'error');
