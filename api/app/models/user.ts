@@ -8,7 +8,7 @@ import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 // sonarjs-ignore-next-line: S2068
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
-  passwordColumnName: 'password', //column name not a password
+  passwordColumnName: 'password', //ColumnName not a password
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
