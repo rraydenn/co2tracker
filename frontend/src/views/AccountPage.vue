@@ -6,20 +6,19 @@
       <router-link to="/login" class="login-btn">Se connecter</router-link>
     </div>
     <div v-else class="profile-container">
-      <ProfileHeader :userData="accountStore.userData" :loading="accountStore.loading" />
-      
+      <ProfileHeader
+        :userData="accountStore.userData"
+        :loading="accountStore.loading"
+      />
       <div class="account-sections">
-        <TripHistory 
-          :trips="accountStore.userTrips" 
-          :loading="accountStore.loading" 
-          :error="accountStore.error" 
+        <TripHistory
+          :trips="accountStore.userTrips"
+          :loading="accountStore.loading"
+          :error="accountStore.error"
+          @trip-deleted="handleTripDeleted"
         />
-        <CO2Stats 
-          :stats="accountStore.userStats" 
-          :loading="accountStore.loading" 
-        />
+        <CO2Stats ref="co2StatsRef" />
       </div>
-      
       <div class="button-container">
         <router-link to="/" class="return-btn">Retour à l'accueil</router-link>
         <button class="button-danger" @click="logout">Déconnexion</button>
@@ -29,37 +28,44 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import { useAccountStore } from '@/stores/account';
-import { useRouter } from 'vue-router';
-import { log } from '@/utils/logger';
-import ProfileHeader from '@/components/results/ProfileHeader.vue';
-import TripHistory from '@/components/results/TripHistory.vue';
-import CO2Stats from '@/components/results/CO2Stats.vue';
+import { defineComponent, onMounted, ref } from "vue";
+import { useAuthStore } from "@/stores/auth";
+import { useAccountStore } from "@/stores/account";
+import { useRouter } from "vue-router";
+import { log } from "@/utils/logger";
+import ProfileHeader from "@/components/results/ProfileHeader.vue";
+import TripHistory from "@/components/results/TripHistory.vue";
+import CO2Stats from "@/components/results/CO2Stats.vue";
 
 export default defineComponent({
-  name: 'AccountPage',
+  name: "AccountPage",
   components: {
     ProfileHeader,
     TripHistory,
-    CO2Stats
+    CO2Stats,
   },
 
   setup() {
     const authStore = useAuthStore();
     const accountStore = useAccountStore();
     const router = useRouter();
+    const co2StatsRef = ref();
 
     const logout = () => {
       authStore.logout();
-      router.push('/');
+      router.push("/");
+    };
+
+    const handleTripDeleted = () => {
+      if (co2StatsRef.value && co2StatsRef.value.reloadStats) {
+        co2StatsRef.value.reloadStats();
+      }
     };
 
     onMounted(() => {
-      log('AccountPage mounted, token exists:', 'debug', !!authStore.token);
+      log("AccountPage mounted, token exists:", "debug", !!authStore.token);
       if (!authStore.token) {
-        router.push('/login');
+        router.push("/login");
       } else {
         accountStore.fetchAccountData(authStore.token);
       }
@@ -68,7 +74,9 @@ export default defineComponent({
     return {
       authStore,
       accountStore,
-      logout
+      logout,
+      co2StatsRef,
+      handleTripDeleted,
     };
   },
 });
@@ -114,7 +122,8 @@ export default defineComponent({
   margin-top: 20px;
 }
 
-.login-btn, .return-btn {
+.login-btn,
+.return-btn {
   display: inline-block;
   padding: 8px 16px;
   background: #4a8;
