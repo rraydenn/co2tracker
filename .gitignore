@@ -140,3 +140,6 @@ frontend/types/
 .yarn/install-state.gz
 .pnp.*
 
+# IDE files
+.idea
+.vscode
