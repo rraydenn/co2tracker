@@ -5,7 +5,8 @@ Université Lyon 1
 ## 🌍 Présentation
 
 **CO₂ Tracker** est une application web permettant de comparer l’empreinte carbone de trajets selon divers modes de transport, que ce soit à l’échelle nationale ou internationale.  
-Elle permet de mieux visualiser l’impact environnemental de ses déplacements et d’effectuer des choix plus durables.
+Elle permet de mieux visualiser l’impact environnemental de ses déplacements et d’effectuer des choix plus durables.  
+*Ce projet a été importé depuis le gitlab de l'université utilisé pendant tout le projet, les issues n'ont pas été importées.*
 
 ## 🚀 Démo
 
